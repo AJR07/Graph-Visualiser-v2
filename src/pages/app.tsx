@@ -1,14 +1,14 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./home/home";
-import PuzzlePicker from "./puzzle/puzzlepicker";
+import Graph from "./graph/graph";
 
 export default function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/puzzle" element={<PuzzlePicker />} />
+                <Route path="/" element={<Graph />} />
+                <Route path="graph">
+                    <Route path=":data" element={<Graph />} />
+                </Route>
             </Routes>
         </BrowserRouter>
     );
