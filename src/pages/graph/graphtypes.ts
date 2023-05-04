@@ -1,3 +1,4 @@
+import Color from "../../utils/color";
 import Pair from "../../utils/pair";
 
 export interface NodeData {
@@ -9,4 +10,15 @@ export interface NodeData {
 
 export interface AdjList {
     [node: string]: string[];
+}
+
+export interface GlobalSettings {
+    bidirectional: boolean;
+
+    nodeRadius: number;
+    nodeColor: Color;
+
+    edgeColor: Color;
+    edgeThickness: number | "weight";
+    edgeLength: number | "weight";
 }

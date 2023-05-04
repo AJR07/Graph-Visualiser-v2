@@ -1,16 +1,29 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AdjList, NodeData } from "./graphtypes";
+import { AdjList, GlobalSettings, NodeData } from "./graphtypes";
 import Pair from "../../utils/pair";
 import Graph from "./graph";
+import { Stack } from "@mui/material";
+import GraphInputSettingsPanel from "./graphinput";
 
 export default function GraphUI() {
+    // utility states
     const { data } = useParams();
-    const [adjList, setAdjList] = useState<AdjList>({});
-    const [graphData, setGraphData] = useState<NodeData[]>([]);
     const [widthHeight, setWidthHeight] = useState<Pair<number, number>>(
         new Pair(window.innerWidth, window.innerHeight)
     );
+    const [settings, setSettings] = useState<GlobalSettings>({
+        bidirectional: false,
+        nodeRadius: 5,
+        nodeColor: "#000000",
+        edgeColor: "#ffffff",
+        edgeThickness: "weight",
+        edgeLength: "weight",
+    });
+
+    // graph data states
+    const [adjList, setAdjList] = useState<AdjList>({});
+    const [graphData, setGraphData] = useState<NodeData[]>([]);
 
     useEffect(() => {
         if (data) {
@@ -35,12 +48,21 @@ export default function GraphUI() {
                 setAdjList({});
             }
         }
+
+        // automatically update window sizes in code when window is resized
+        window.onresize = () => {
+            setWidthHeight(new Pair(window.innerWidth, window.innerHeight));
+        };
     }, []);
 
     return (
-        <div>
-            <h1></h1>
+        <Stack spacing={3}>
+            <h1>GRAPH VISUALISER!</h1>
+            <GraphInputSettingsPanel
+                settings={settings}
+                setSettings={setSettings}
+            />
             <Graph />
-        </div>
+        </Stack>
     );
 }
