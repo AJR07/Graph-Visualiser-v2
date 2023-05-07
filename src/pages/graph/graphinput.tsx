@@ -1,6 +1,7 @@
 import { Slider, Stack, ToggleButton } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import { GlobalSettings } from "./graphtypes";
+import Color from "../../utils/color";
 
 interface GraphInputProps {
     label: string;
@@ -11,13 +12,14 @@ function GraphInput(props: GraphInputProps) {
     return (
         <Stack
             direction="row"
-            spacing={2}
             style={{ display: "flex", alignItems: "center" }}
         >
-            <p className="black" style={{ fontWeight: "bold" }}>
+            <p className="black" style={{ fontWeight: "bold", width: "15%" }}>
                 {props.label}:
             </p>
-            {props.children}
+            <Stack direction="row" spacing={5} style={{ width: "100%" }}>
+                {props.children}
+            </Stack>
         </Stack>
     );
 }
@@ -64,6 +66,20 @@ export default function GraphInputSettingsPanel(
                 </ToggleButton>
             </GraphInput>
 
+            <GraphInput label="Node Colour">
+                <input
+                    type="color"
+                    name="Node Colour"
+                    value={settings.nodeColor}
+                    onChange={(e) => {
+                        setSettings({
+                            ...settings,
+                            nodeColor: e.target.value as Color,
+                        });
+                    }}
+                />
+            </GraphInput>
+
             <GraphInput label="Node Radius">
                 <Slider
                     step={5}
@@ -82,6 +98,20 @@ export default function GraphInputSettingsPanel(
                         });
                     }}
                     style={{ width: "100%" }}
+                />
+            </GraphInput>
+
+            <GraphInput label="Edge Colour">
+                <input
+                    type="color"
+                    name="Edge Colour"
+                    value={settings.edgeColor}
+                    onChange={(e) => {
+                        setSettings({
+                            ...settings,
+                            edgeColor: e.target.value as Color,
+                        });
+                    }}
                 />
             </GraphInput>
 
