@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import GraphUI from "./graph/graphui";
+import GraphUI from "./graph/ui";
 
 export default function App() {
     return (

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AdjList, GlobalSettings, NodeData } from "./graphtypes";
+import { AdjList, GlobalSettings, NodeData } from "./types";
 import Pair from "../../utils/pair";
 import Graph from "./graph";
 import { Stack } from "@mui/material";
-import GraphInputSettingsPanel from "./graphinput";
+import GraphInputSettingsPanel from "./inputs/controls";
 
 export default function GraphUI() {
     // utility states
@@ -57,7 +57,7 @@ export default function GraphUI() {
 
     return (
         <Stack spacing={3}>
-            <h1>GRAPH VISUALISER!</h1>
+            <h1 className="center">GRAPH VISUALISER</h1>
             <GraphInputSettingsPanel
                 settings={settings}
                 setSettings={setSettings}
