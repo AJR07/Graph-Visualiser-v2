@@ -21,6 +21,7 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
     const duplicatedName: boolean = Object.keys(props.adjList).includes(
         newNodeLabel
     );
+    const lengthyName: boolean = newNodeLabel.length > 5;
 
     return (
         <GraphInputWrapper label="Node Editor">
@@ -114,8 +115,14 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
                 label="Add A Node"
                 variant="filled"
                 color="warning"
-                error={duplicatedName}
-                helperText={duplicatedName ? "Node name already exists" : null}
+                error={duplicatedName || lengthyName}
+                helperText={
+                    duplicatedName
+                        ? "Node name already exists"
+                        : lengthyName
+                        ? "Node name too long"
+                        : null
+                }
                 fullWidth
                 value={newNodeLabel}
                 style={{ marginTop: "1vw" }}

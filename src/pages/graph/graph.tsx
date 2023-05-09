@@ -10,13 +10,11 @@ import NodeEditorSettingsPanel from "./inputs/nodeeditor";
 export default function Graph() {
     // utility states
     const { data } = useParams();
-    const [widthHeight, setWidthHeight] = useState<Pair<number, number>>(
-        new Pair(window.innerWidth, window.innerHeight)
-    );
+    const [windowResize, setWindowResize] = useState(false);
     const [settings, setSettings] = useState<GlobalSettings>({
         bidirectional: false,
-        nodeRadius: 5,
-        nodeColor: "#000000",
+        nodeRadius: 20,
+        nodeColor: "#ffffff",
         edgeColor: "#ffffff",
         edgeThickness: "weight",
         edgeLength: "weight",
@@ -25,8 +23,6 @@ export default function Graph() {
     // graph data states
     const [adjList, setAdjList] = useState<AdjList>({});
     const [nodeData, setNodeData] = useState<NodeData[]>([]);
-
-    console.log(adjList, nodeData);
 
     useEffect(() => {
         if (data) {
@@ -39,8 +35,8 @@ export default function Graph() {
                         {
                             label: node,
                             pos: new Pair(
-                                Math.random() * widthHeight.first,
-                                Math.random() * widthHeight.second
+                                Math.random() * window.innerWidth,
+                                Math.random() * window.innerHeight
                             ),
                             velocity: new Pair(0, 0),
                             acceleration: new Pair(0, 0),
@@ -54,7 +50,7 @@ export default function Graph() {
 
         // automatically update window sizes in code when window is resized
         window.onresize = () => {
-            setWidthHeight(new Pair(window.innerWidth, window.innerHeight));
+            setWindowResize((windowResize) => !windowResize);
         };
     }, []);
 
@@ -80,7 +76,11 @@ export default function Graph() {
                     setAdjList={setAdjList}
                 />
             </Stack>
-            <Display />
+            <Display
+                nodeData={nodeData}
+                adjList={adjList}
+                settings={settings}
+            />
         </Stack>
     );
 }
