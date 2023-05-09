@@ -1,0 +1,10 @@
+.node {
+    font-weight: bold;
+    background-color: #1d8ad3;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.node-adjacent {
+    background-color: #d3a21d;
+}

@@ -5,6 +5,7 @@ import Pair from "../../utils/pair";
 import Display from "./display";
 import { Stack } from "@mui/material";
 import GraphInputSettingsPanel from "./inputs/settings";
+import NodeEditorSettingsPanel from "./inputs/nodeeditor";
 
 export default function Graph() {
     // utility states
@@ -24,6 +25,8 @@ export default function Graph() {
     // graph data states
     const [adjList, setAdjList] = useState<AdjList>({});
     const [nodeData, setNodeData] = useState<NodeData[]>([]);
+
+    console.log(adjList, nodeData);
 
     useEffect(() => {
         if (data) {
@@ -64,11 +67,17 @@ export default function Graph() {
                 by AJR07
             </h4>
 
-            <Stack id="input">
-                <h2 style={{ padding: "1vw" }}>Input Controls</h2>
+            <Stack id="input" spacing={3}>
+                <h2 style={{ paddingLeft: "1vw" }}>Input Controls</h2>
                 <GraphInputSettingsPanel
                     settings={settings}
                     setSettings={setSettings}
+                />
+                <NodeEditorSettingsPanel
+                    nodeData={nodeData}
+                    setNodeData={setNodeData}
+                    adjList={adjList}
+                    setAdjList={setAdjList}
                 />
             </Stack>
             <Display />

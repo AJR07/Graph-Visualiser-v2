@@ -1,27 +1,8 @@
-import { Slider, Stack, ToggleButton } from "@mui/material";
+import { Slider, ToggleButton } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import { GlobalSettings } from "../types";
 import Color from "../../../utils/color";
-import GraphInputWrapper from "./input";
-
-interface GraphInputProps {
-    label: string;
-    children: JSX.Element[] | JSX.Element;
-}
-
-function GraphInput(props: GraphInputProps) {
-    return (
-        <Stack
-            direction="row"
-            style={{ display: "flex", alignItems: "center" }}
-        >
-            <p style={{ fontWeight: "bold", width: "15%" }}>{props.label}:</p>
-            <Stack direction="row" spacing={5} style={{ width: "100%" }}>
-                {props.children}
-            </Stack>
-        </Stack>
-    );
-}
+import { GraphInputWrapper, GraphInput } from "./input";
 
 interface GraphInputSettingsPanelProps {
     settings: GlobalSettings;

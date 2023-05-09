@@ -7,19 +7,38 @@ interface GraphInputProps {
     children: JSX.Element[] | JSX.Element;
 }
 
-export default function GraphInputWrapper(props: GraphInputProps) {
+export function GraphInput(props: GraphInputProps) {
+    return (
+        <Stack
+            direction="row"
+            style={{ display: "flex", alignItems: "center" }}
+        >
+            <p style={{ fontWeight: "bold", width: "15%" }}>{props.label}:</p>
+            <Stack direction="row" spacing={5} style={{ width: "100%" }}>
+                {props.children}
+            </Stack>
+        </Stack>
+    );
+}
+
+interface GraphInputWrapperProps {
+    label: string;
+    children: JSX.Element[] | JSX.Element;
+}
+
+export function GraphInputWrapper(props: GraphInputWrapperProps) {
     const [showing, setShowing] = useState<boolean>(false);
 
     return (
         <Stack
             id="control-panel"
             style={{
-                backgroundColor: "#1b8e49",
+                backgroundColor: "#17753c",
                 padding: "1vw",
                 marginLeft: "1vw",
                 marginRight: "1vw",
                 borderRadius: "1vw",
-                opacity: "0.75",
+                opacity: "0.8",
             }}
         >
             <Stack
