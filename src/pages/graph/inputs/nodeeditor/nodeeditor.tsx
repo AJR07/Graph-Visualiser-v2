@@ -12,6 +12,7 @@ import { GraphInputWrapper } from "../input";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import Pair from "../../../../utils/pair";
 import { useState } from "react";
+import AdjacentNodes from "../../display/adjacentnode";
 
 import "./nodeeditor.css";
 
@@ -20,6 +21,7 @@ interface NodeEditorProps {
     setNodeData: React.Dispatch<React.SetStateAction<NodeData>>;
     adjList: AdjList;
     setAdjList: React.Dispatch<React.SetStateAction<AdjList>>;
+    bidirectional: boolean;
 }
 
 export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
@@ -50,49 +52,12 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
                             <p>{count++}.</p>
                             <h3 className="node">{node.label}</h3>
                             <DoubleArrowIcon />
-                            {Object.keys(props.adjList).includes(node.label)
-                                ? Object.values(props.adjList[node.label]).map(
-                                      (adjNode) => {
-                                          console.log(adjNode);
-                                          return (
-                                              <Stack>
-                                                  <h3
-                                                      className="node node-adjacent"
-                                                      key={adjNode.first}
-                                                      style={{ margin: 0 }}
-                                                  >
-                                                      {adjNode.first}
-                                                  </h3>
-                                                  <input
-                                                      type="number"
-                                                      value={adjNode.second}
-                                                      style={{ color: "black" }}
-                                                      onChange={(evt) => {
-                                                          props.setAdjList(
-                                                              (adj) => {
-                                                                  let newAdj = {
-                                                                      ...adj,
-                                                                  };
-                                                                  newAdj[
-                                                                      node.label
-                                                                  ].find(
-                                                                      (pair) =>
-                                                                          pair.first ===
-                                                                          adjNode.first
-                                                                  )!.second = parseInt(
-                                                                      evt.target
-                                                                          .value
-                                                                  );
-                                                                  return newAdj;
-                                                              }
-                                                          );
-                                                      }}
-                                                  />
-                                              </Stack>
-                                          );
-                                      }
-                                  )
-                                : null}
+                            <AdjacentNodes
+                                node={node}
+                                adjList={props.adjList}
+                                setAdjList={props.setAdjList}
+                                bidirectional={props.bidirectional}
+                            />
                             <FormControl
                                 style={{
                                     marginRight: 0,
@@ -161,6 +126,14 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
                                     props.setAdjList((adj) => {
                                         let newAdj = { ...adj };
                                         delete newAdj[node.label];
+                                        for (let key of Object.keys(newAdj)) {
+                                            newAdj[key] = newAdj[key].filter(
+                                                (pair) => {
+                                                    return (pair.first !==
+                                                        node.label) as boolean;
+                                                }
+                                            );
+                                        }
                                         return newAdj;
                                     });
                                 }}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AdjList, GlobalSettings, Node, NodeData } from "./types";
 import Pair from "../../utils/pair";
-import Display from "./display";
+import Display from "./display/display";
 import { Stack } from "@mui/material";
 import GraphInputSettingsPanel from "./inputs/settingseditor";
 import NodeEditorSettingsPanel from "./inputs/nodeeditor/nodeeditor";
@@ -10,7 +10,6 @@ import NodeEditorSettingsPanel from "./inputs/nodeeditor/nodeeditor";
 export default function Graph() {
     // utility states
     const { data } = useParams();
-    const [windowResize, setWindowResize] = useState(false);
     const [settings, setSettings] = useState<GlobalSettings>({
         bidirectional: false,
         nodeRadius: 20,
@@ -48,11 +47,6 @@ export default function Graph() {
                 setAdjList({});
             }
         }
-
-        // automatically update window sizes in code when window is resized
-        window.onresize = () => {
-            setWindowResize((windowResize) => !windowResize);
-        };
     }, []);
 
     return (
@@ -75,6 +69,7 @@ export default function Graph() {
                     setNodeData={setNodeData}
                     adjList={adjList}
                     setAdjList={setAdjList}
+                    bidirectional={settings.bidirectional}
                 />
             </Stack>
             <Display

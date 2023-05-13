@@ -1,8 +1,8 @@
 import { Component, RefObject, createRef } from "react";
-import { AdjList, GlobalSettings, NodeData } from "./types";
+import { AdjList, GlobalSettings, NodeData } from "../types";
 import p5 from "p5";
-import Pair from "../../utils/pair";
-import contrast from "../../utils/contrast";
+import Pair from "../../../utils/pair";
+import contrast from "../../../utils/contrast";
 
 interface DisplayProps {
     nodeData: NodeData;
@@ -21,6 +21,12 @@ export default class Display extends Component<DisplayProps> {
         this.sketch = this.sketch.bind(this);
 
         this.ref = createRef<HTMLDivElement>();
+
+        window.onresize = () => {
+            if (this.p5) {
+                this.p5.resizeCanvas(window.innerWidth, window.innerHeight);
+            }
+        };
     }
 
     sketch(p5: any) {
@@ -42,6 +48,7 @@ export default class Display extends Component<DisplayProps> {
                             thickness = neighbour.second;
 
                         let clr = this.props.settings.edgeColor;
+
                         p5.push();
                         p5.stroke(clr);
                         if (thickness === 0) p5.noStroke();
@@ -52,21 +59,37 @@ export default class Display extends Component<DisplayProps> {
                             neighbourNode.pos.first,
                             neighbourNode.pos.second
                         );
-
-                        let midpoint = new Pair(
-                            (node.pos.first + neighbourNode.pos.first) / 2,
-                            (node.pos.second + neighbourNode.pos.second) / 2
-                        );
-                        p5.translate(midpoint.first, midpoint.second);
-                        p5.rotate(
-                            p5.atan2(
-                                neighbourNode.pos.second - node.pos.second,
-                                neighbourNode.pos.first - node.pos.first
-                            ) +
-                                p5.PI / 2
-                        );
-                        p5.triangle(0, -thickness, -thickness, 0, thickness, 0);
                         p5.pop();
+
+                        if (!this.props.settings.bidirectional) {
+                            p5.push();
+                            let midpoint = new Pair(
+                                    (node.pos.first + neighbourNode.pos.first) /
+                                        2,
+                                    (node.pos.second +
+                                        neighbourNode.pos.second) /
+                                        2
+                                ),
+                                angle =
+                                    p5.atan2(
+                                        neighbourNode.pos.second -
+                                            node.pos.second,
+                                        neighbourNode.pos.first - node.pos.first
+                                    ) +
+                                    p5.PI / 2;
+                            p5.noStroke();
+                            p5.translate(midpoint.first, midpoint.second);
+                            p5.rotate(angle);
+                            p5.triangle(
+                                0,
+                                -thickness * 2,
+                                -thickness * 2,
+                                0,
+                                thickness * 2,
+                                0
+                            );
+                            p5.pop();
+                        }
                     }
                 }
             }
@@ -84,7 +107,6 @@ export default class Display extends Component<DisplayProps> {
                 p5.push();
                 p5.textSize((radius / node.label.length) * 1.5);
                 p5.textAlign(p5.CENTER, p5.CENTER);
-                p5.textStyle(p5.BOLD);
                 p5.fill(contrast(clr));
                 p5.text(node.label, node.pos.first, node.pos.second);
                 p5.pop();
