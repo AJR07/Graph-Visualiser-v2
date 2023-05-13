@@ -4,7 +4,10 @@ import p5 from "p5";
 import Pair, { add, mult } from "../../../utils/pair";
 import contrast from "../../../utils/contrast";
 
-const CENTER_FORCE_SCALE = 100000;
+const CENTER_FORCE_SCALE = 0.00001;
+const REPULSION_FORCE_SCALE = 0.05;
+const EDGE_FORCE_SCALE = 0.0001;
+const THICKNESS_SCALE = 1;
 
 interface DisplayProps {
     nodeData: NodeData;
@@ -84,13 +87,14 @@ export default class Display extends Component<DisplayProps> {
                         let thickness = this.props.settings.edgeThickness;
                         if (thickness === "weight")
                             thickness = neighbour.second;
+                        thickness = Math.sqrt(thickness * THICKNESS_SCALE);
 
                         let clr = this.props.settings.edgeColor;
 
                         p5.push();
                         p5.stroke(clr);
                         if (thickness === 0) p5.noStroke();
-                        else p5.strokeWeight(thickness);
+                        else p5.strokeWeight(thickness / 2);
                         p5.line(
                             node.pos.first,
                             node.pos.second,
@@ -120,10 +124,10 @@ export default class Display extends Component<DisplayProps> {
                             p5.rotate(angle);
                             p5.triangle(
                                 0,
-                                -thickness * 2,
-                                -thickness * 2,
+                                -thickness,
+                                -thickness,
                                 0,
-                                thickness * 2,
+                                thickness,
                                 0
                             );
                             p5.pop();
@@ -148,16 +152,60 @@ export default class Display extends Component<DisplayProps> {
                 if (this.selectedNode === node.label)
                     node.pos = new Pair(p5.mouseX, p5.mouseY);
 
+                // !APPLY FORCES
                 // apply forces - near edge
                 let distX = p5.width / 2 - node.pos.first;
                 let distY = p5.height / 2 - node.pos.second;
                 this.applyForce(
                     node.label,
                     new Pair(
-                        distX / CENTER_FORCE_SCALE,
-                        distY / CENTER_FORCE_SCALE
+                        distX * CENTER_FORCE_SCALE,
+                        distY * CENTER_FORCE_SCALE
                     )
                 );
+
+                // apply forces - repel
+                for (let otherNode of Object.values(this.props.nodeData)) {
+                    if (otherNode.label !== node.label) {
+                        this.applyForce(
+                            node.label,
+                            new Pair(
+                                REPULSION_FORCE_SCALE /
+                                    (node.pos.first - otherNode.pos.first),
+                                REPULSION_FORCE_SCALE /
+                                    (node.pos.second - otherNode.pos.second)
+                            )
+                        );
+                    }
+                }
+
+                // apply forces - edge
+                for (let neighbour of this.props.adjList[node.label]) {
+                    let neighbourNode = this.props.nodeData[neighbour.first]!;
+                    if (neighbourNode.label === node.label) continue;
+                    let dist = p5.dist(
+                        node.pos.first,
+                        node.pos.second,
+                        neighbourNode.pos.first,
+                        neighbourNode.pos.second
+                    );
+                    let force =
+                        dist -
+                        (this.props.settings.edgeLength === "weight"
+                            ? neighbour.second
+                            : this.props.settings.edgeLength);
+                    let angle = p5.atan2(
+                        neighbourNode.pos.second - node.pos.second,
+                        neighbourNode.pos.first - node.pos.first
+                    );
+                    this.applyForce(
+                        node.label,
+                        new Pair(
+                            p5.cos(angle) * force * EDGE_FORCE_SCALE,
+                            p5.sin(angle) * force * EDGE_FORCE_SCALE
+                        )
+                    );
+                }
 
                 let radius = this.props.settings.nodeRadius;
                 let clr = this.props.settings.nodeColor;

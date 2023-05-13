@@ -12,7 +12,7 @@ export interface Node {
     acceleration: Pair<number, number>;
 }
 
-export let DEFAULT_NODE_WEIGHT = 10;
+export let DEFAULT_NODE_WEIGHT = 100;
 
 export interface AdjList {
     [node: string]: Pair<string, number>[];
