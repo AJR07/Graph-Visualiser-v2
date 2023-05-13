@@ -111,10 +111,10 @@ export default function GraphInputSettingsPanel(
                         : "Weight"}
                 </ToggleButton>
                 <Slider
-                    step={5}
+                    step={3}
                     marks
-                    min={5}
-                    max={100}
+                    min={0}
+                    max={60}
                     getAriaValueText={() => `${settings.edgeThickness}`}
                     valueLabelDisplay="auto"
                     value={

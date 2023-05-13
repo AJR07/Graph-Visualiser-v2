@@ -1,8 +1,16 @@
-import { Button, Stack, TextField } from "@mui/material";
-import { AdjList, Node, NodeData } from "../types";
-import { GraphInputWrapper } from "./input";
+import {
+    Button,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    Stack,
+    TextField,
+} from "@mui/material";
+import { AdjList, DEFAULT_NODE_WEIGHT, Node, NodeData } from "../../types";
+import { GraphInputWrapper } from "../input";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
-import Pair from "../../../utils/pair";
+import Pair from "../../../../utils/pair";
 import { useState } from "react";
 
 import "./nodeeditor.css";
@@ -16,7 +24,6 @@ interface NodeEditorProps {
 
 export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
     const [newNodeLabel, setNewNodeLabel] = useState<string>("");
-    const [selectValue, setSelectValue] = useState<string>("");
 
     const duplicatedName: boolean = Object.keys(props.adjList).includes(
         newNodeLabel
@@ -46,66 +53,102 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
                             {Object.keys(props.adjList).includes(node.label)
                                 ? Object.values(props.adjList[node.label]).map(
                                       (adjNode) => {
+                                          console.log(adjNode);
                                           return (
-                                              <h3
-                                                  className="node node-adjacent"
-                                                  key={adjNode}
-                                              >
-                                                  {adjNode}
-                                              </h3>
+                                              <Stack>
+                                                  <h3
+                                                      className="node node-adjacent"
+                                                      key={adjNode.first}
+                                                      style={{ margin: 0 }}
+                                                  >
+                                                      {adjNode.first}
+                                                  </h3>
+                                                  <input
+                                                      type="number"
+                                                      value={adjNode.second}
+                                                      style={{ color: "black" }}
+                                                      onChange={(evt) => {
+                                                          props.setAdjList(
+                                                              (adj) => {
+                                                                  let newAdj = {
+                                                                      ...adj,
+                                                                  };
+                                                                  newAdj[
+                                                                      node.label
+                                                                  ].find(
+                                                                      (pair) =>
+                                                                          pair.first ===
+                                                                          adjNode.first
+                                                                  )!.second = parseInt(
+                                                                      evt.target
+                                                                          .value
+                                                                  );
+                                                                  return newAdj;
+                                                              }
+                                                          );
+                                                      }}
+                                                  />
+                                              </Stack>
                                           );
                                       }
                                   )
                                 : null}
-                            <Stack
-                                direction="column"
-                                style={{ marginRight: 0, marginLeft: "auto" }}
+                            <FormControl
+                                style={{
+                                    marginRight: 0,
+                                    marginLeft: "auto",
+                                    width: "10%",
+                                }}
                             >
-                                <select
-                                    name="add-node"
+                                <InputLabel
                                     id="add-node"
-                                    value={selectValue}
-                                    style={{ color: "black" }}
-                                    onChange={(evt) =>
-                                        setSelectValue(evt.target.value)
-                                    }
-                                    onFocus={(evt) => {
-                                        evt.target.selectedIndex = -1;
-                                    }}
+                                    style={{ color: "white" }}
                                 >
-                                    <option value={-1}></option>
-                                    {Object.keys(props.adjList).map(
-                                        (linkedNode) => {
-                                            return props.adjList[
-                                                node.label
-                                            ].includes(linkedNode) ? null : (
-                                                <option
-                                                    value={linkedNode}
-                                                    key={linkedNode}
-                                                >
-                                                    {linkedNode}
-                                                </option>
-                                            );
-                                        }
-                                    )}
-                                </select>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => {
-                                        if (selectValue === "") return;
+                                    Add Node
+                                </InputLabel>
+                                <Select
+                                    labelId="add-node"
+                                    value={""}
+                                    color="warning"
+                                    variant="filled"
+                                    onChange={(evt) => {
                                         props.setAdjList((adj) => {
                                             let newAdj = { ...adj };
                                             newAdj[node.label].push(
-                                                selectValue
+                                                new Pair(
+                                                    evt.target.value,
+                                                    DEFAULT_NODE_WEIGHT
+                                                )
                                             );
                                             return newAdj;
                                         });
-                                        setSelectValue("");
                                     }}
                                 >
-                                    ADD A CONNECTED NODE
-                                </Button>
-                            </Stack>
+                                    {Object.keys(props.nodeData).map(
+                                        (nodeToLinkTo: string) => {
+                                            for (let nodeLabel of Object.values(
+                                                props.adjList[node.label]
+                                            )) {
+                                                if (
+                                                    nodeLabel.first ===
+                                                    nodeToLinkTo
+                                                ) {
+                                                    return null;
+                                                }
+                                            }
+                                            return (
+                                                <MenuItem
+                                                    value={nodeToLinkTo}
+                                                    key={nodeToLinkTo}
+                                                    style={{ color: "black" }}
+                                                >
+                                                    {nodeToLinkTo}
+                                                </MenuItem>
+                                            );
+                                        }
+                                    )}
+                                </Select>
+                            </FormControl>
                             <Button
                                 variant="contained"
                                 color="error"

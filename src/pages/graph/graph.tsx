@@ -4,8 +4,8 @@ import { AdjList, GlobalSettings, Node, NodeData } from "./types";
 import Pair from "../../utils/pair";
 import Display from "./display";
 import { Stack } from "@mui/material";
-import GraphInputSettingsPanel from "./inputs/settings";
-import NodeEditorSettingsPanel from "./inputs/nodeeditor";
+import GraphInputSettingsPanel from "./inputs/settingseditor";
+import NodeEditorSettingsPanel from "./inputs/nodeeditor/nodeeditor";
 
 export default function Graph() {
     // utility states
