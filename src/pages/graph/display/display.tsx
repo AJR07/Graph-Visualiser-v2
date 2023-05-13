@@ -1,8 +1,10 @@
 import { Component, RefObject, createRef } from "react";
 import { AdjList, GlobalSettings, NodeData } from "../types";
 import p5 from "p5";
-import Pair from "../../../utils/pair";
+import Pair, { add, mult } from "../../../utils/pair";
 import contrast from "../../../utils/contrast";
+
+const CENTER_FORCE_SCALE = 100000;
 
 interface DisplayProps {
     nodeData: NodeData;
@@ -14,11 +16,16 @@ export default class Display extends Component<DisplayProps> {
     ref: RefObject<HTMLDivElement>;
     p5: any | null = null;
     props: DisplayProps;
+    startTime: number = Date.now();
+    selectedNode: string | null = null;
+    DAMPING: number = 0.999;
 
     constructor(props: DisplayProps) {
         super(props);
         this.props = props;
         this.sketch = this.sketch.bind(this);
+        this.updateNodes = this.updateNodes.bind(this);
+        this.applyForce = this.applyForce.bind(this);
 
         this.ref = createRef<HTMLDivElement>();
 
@@ -29,14 +36,45 @@ export default class Display extends Component<DisplayProps> {
         };
     }
 
+    updateNodes() {
+        for (let node of Object.values(this.props.nodeData)) {
+            node.velocity = add(node.velocity, node.acceleration);
+            node.velocity = mult(node.velocity, this.DAMPING);
+            node.pos = add(node.pos, node.velocity);
+            node.acceleration = new Pair(0, 0);
+        }
+    }
+
+    applyForce(nodeID: string, force: Pair<number, number>) {
+        this.props.nodeData[nodeID].acceleration = add(
+            this.props.nodeData[nodeID].acceleration,
+            force
+        );
+    }
+
     sketch(p5: any) {
         p5.setup = () => {
             p5.createCanvas(window.innerWidth, window.innerHeight);
-            p5.frameRate(1);
+            this.startTime = Date.now();
         };
 
         p5.draw = () => {
+            let mouseOverNode = false;
             p5.background(50);
+
+            // frame rate
+            p5.push();
+            p5.textSize(10);
+            p5.textAlign(p5.RIGHT, p5.CENTER);
+            p5.fill("white");
+            p5.text(
+                `Frame Rate: ${Math.round(
+                    p5.frameCount / ((Date.now() - this.startTime) / 1000)
+                )}`,
+                p5.width - 10,
+                20
+            );
+            p5.pop();
 
             // draw edges
             for (let node of Object.values(this.props.nodeData)) {
@@ -96,6 +134,31 @@ export default class Display extends Component<DisplayProps> {
 
             // draw nodes
             for (let node of Object.values(this.props.nodeData)) {
+                // check if mouse is over node
+                if (
+                    p5.dist(
+                        p5.mouseX,
+                        p5.mouseY,
+                        node.pos.first,
+                        node.pos.second
+                    ) < this.props.settings.nodeRadius
+                ) {
+                    mouseOverNode = true;
+                }
+                if (this.selectedNode === node.label)
+                    node.pos = new Pair(p5.mouseX, p5.mouseY);
+
+                // apply forces - near edge
+                let distX = p5.width / 2 - node.pos.first;
+                let distY = p5.height / 2 - node.pos.second;
+                this.applyForce(
+                    node.label,
+                    new Pair(
+                        distX / CENTER_FORCE_SCALE,
+                        distY / CENTER_FORCE_SCALE
+                    )
+                );
+
                 let radius = this.props.settings.nodeRadius;
                 let clr = this.props.settings.nodeColor;
                 p5.push();
@@ -110,7 +173,30 @@ export default class Display extends Component<DisplayProps> {
                 p5.fill(contrast(clr));
                 p5.text(node.label, node.pos.first, node.pos.second);
                 p5.pop();
+
+                this.updateNodes();
             }
+            if (mouseOverNode) document.body.style.cursor = "pointer";
+            else document.body.style.cursor = "default";
+        };
+
+        p5.mousePressed = () => {
+            for (let node of Object.values(this.props.nodeData)) {
+                if (
+                    p5.dist(
+                        p5.mouseX,
+                        p5.mouseY,
+                        node.pos.first,
+                        node.pos.second
+                    ) < this.props.settings.nodeRadius
+                ) {
+                    this.selectedNode = node.label;
+                }
+            }
+        };
+
+        p5.mouseReleased = () => {
+            this.selectedNode = null;
         };
     }
 

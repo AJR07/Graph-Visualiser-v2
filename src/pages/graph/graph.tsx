@@ -59,7 +59,9 @@ export default function Graph() {
             </h4>
 
             <Stack id="input" spacing={3}>
-                <h2 style={{ paddingLeft: "1vw" }}>Input Controls</h2>
+                <h2 style={{ paddingLeft: "1vw", margin: 0 }}>
+                    Input Controls
+                </h2>
                 <GraphInputSettingsPanel
                     settings={settings}
                     setSettings={setSettings}
@@ -72,6 +74,7 @@ export default function Graph() {
                     bidirectional={settings.bidirectional}
                 />
             </Stack>
+            <h2 className="center">Rendered Graph</h2>
             <Display
                 nodeData={nodeData}
                 adjList={adjList}

@@ -15,3 +15,17 @@ export default class Pair<First, Second> {
         return `(${this.first}, ${this.second})`;
     }
 }
+
+export function add(
+    first: Pair<number, number>,
+    second: Pair<number, number>
+): Pair<number, number> {
+    return new Pair(first.first + second.first, first.second + second.second);
+}
+
+export function mult(
+    first: Pair<number, number>,
+    second: number
+): Pair<number, number> {
+    return new Pair(first.first * second, first.second * second);
+}
