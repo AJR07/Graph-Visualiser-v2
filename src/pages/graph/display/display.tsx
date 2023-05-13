@@ -5,9 +5,10 @@ import Pair, { add, mult } from "../../../utils/pair";
 import contrast from "../../../utils/contrast";
 
 const CENTER_FORCE_SCALE = 0.00001;
-const REPULSION_FORCE_SCALE = 0.05;
+const REPULSION_FORCE_SCALE = 0.001;
 const EDGE_FORCE_SCALE = 0.0001;
 const THICKNESS_SCALE = 1;
+const MAX_FORCE = 2;
 
 interface DisplayProps {
     nodeData: NodeData;
@@ -48,10 +49,17 @@ export default class Display extends Component<DisplayProps> {
         }
     }
 
-    applyForce(nodeID: string, force: Pair<number, number>) {
+    applyForce(
+        nodeID: string,
+        force: Pair<number, number>,
+        source: string = ""
+    ) {
         this.props.nodeData[nodeID].acceleration = add(
             this.props.nodeData[nodeID].acceleration,
-            force
+            new Pair(
+                Math.min(force.first, MAX_FORCE),
+                Math.min(force.second, MAX_FORCE)
+            )
         );
     }
 
@@ -161,20 +169,37 @@ export default class Display extends Component<DisplayProps> {
                     new Pair(
                         distX * CENTER_FORCE_SCALE,
                         distY * CENTER_FORCE_SCALE
-                    )
+                    ),
+                    "near edge"
                 );
 
                 // apply forces - repel
                 for (let otherNode of Object.values(this.props.nodeData)) {
-                    if (otherNode.label !== node.label) {
+                    if (
+                        otherNode.label !== node.label &&
+                        p5.dist(
+                            node.pos.first,
+                            node.pos.second,
+                            otherNode.pos.first,
+                            otherNode.pos.second
+                        ) <
+                            this.props.settings.nodeRadius * 4
+                    ) {
                         this.applyForce(
                             node.label,
                             new Pair(
-                                REPULSION_FORCE_SCALE /
-                                    (node.pos.first - otherNode.pos.first),
-                                REPULSION_FORCE_SCALE /
-                                    (node.pos.second - otherNode.pos.second)
-                            )
+                                REPULSION_FORCE_SCALE *
+                                    -(
+                                        this.props.settings.nodeRadius -
+                                        (node.pos.first - otherNode.pos.first)
+                                    ),
+                                REPULSION_FORCE_SCALE *
+                                    -(
+                                        this.props.settings.nodeRadius -
+                                        (node.pos.second - otherNode.pos.second)
+                                    )
+                            ),
+                            "repel"
                         );
                     }
                 }
@@ -203,7 +228,8 @@ export default class Display extends Component<DisplayProps> {
                         new Pair(
                             p5.cos(angle) * force * EDGE_FORCE_SCALE,
                             p5.sin(angle) * force * EDGE_FORCE_SCALE
-                        )
+                        ),
+                        "edge"
                     );
                 }
 
