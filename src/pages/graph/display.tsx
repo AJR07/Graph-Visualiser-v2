@@ -4,7 +4,7 @@ import p5 from "p5";
 import Pair from "../../utils/pair";
 
 interface DisplayProps {
-    nodeData: NodeData[];
+    nodeData: NodeData;
     adjList: AdjList;
     settings: GlobalSettings;
 }
@@ -32,11 +32,9 @@ export default class Display extends Component<DisplayProps> {
             p5.background(50);
 
             // draw edges
-            for (let node of this.props.nodeData) {
+            for (let node of Object.values(this.props.nodeData)) {
                 for (let neighbour of this.props.adjList[node.label]) {
-                    let neighbourNode = this.props.nodeData.find(
-                        (n) => n.label === neighbour
-                    );
+                    let neighbourNode = this.props.nodeData[neighbour];
                     if (neighbourNode) {
                         let thickness = this.props.settings.edgeThickness;
 
@@ -70,7 +68,7 @@ export default class Display extends Component<DisplayProps> {
             }
 
             // draw nodes
-            for (let node of this.props.nodeData) {
+            for (let node of Object.values(this.props.nodeData)) {
                 let radius = this.props.settings.nodeRadius;
                 let clr = this.props.settings.nodeColor;
                 p5.push();

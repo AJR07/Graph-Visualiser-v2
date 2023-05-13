@@ -1,5 +1,5 @@
 import { Button, Stack, TextField } from "@mui/material";
-import { AdjList, NodeData } from "../types";
+import { AdjList, Node, NodeData } from "../types";
 import { GraphInputWrapper } from "./input";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import Pair from "../../../utils/pair";
@@ -8,8 +8,8 @@ import { useState } from "react";
 import "./nodeeditor.css";
 
 interface NodeEditorProps {
-    nodeData: NodeData[];
-    setNodeData: React.Dispatch<React.SetStateAction<NodeData[]>>;
+    nodeData: NodeData;
+    setNodeData: React.Dispatch<React.SetStateAction<NodeData>>;
     adjList: AdjList;
     setAdjList: React.Dispatch<React.SetStateAction<AdjList>>;
 }
@@ -22,25 +22,25 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
         newNodeLabel
     );
     const lengthyName: boolean = newNodeLabel.length > 5;
+    let count = 1;
 
     return (
         <GraphInputWrapper label="Node Editor">
             <Stack style={{ padding: "1vw" }} spacing={2}>
-                {props.nodeData.map((node, index) => {
+                {Object.values(props.nodeData).map((node) => {
                     return (
                         <Stack
-                            key={index}
+                            key={node.label}
                             direction="row"
                             style={{
                                 display: "flex",
                                 alignItems: "center",
-                                paddingLeft: "1vw",
-                                paddingRight: "1vw",
+                                padding: "1vw",
                                 border: "solid white",
                             }}
                             spacing={3}
                         >
-                            <p>{index + 1}.</p>
+                            <p>{count++}.</p>
                             <h3 className="node">{node.label}</h3>
                             <DoubleArrowIcon />
                             {Object.keys(props.adjList).includes(node.label)
@@ -58,9 +58,8 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
                                   )
                                 : null}
                             <Stack
-                                direction="row"
+                                direction="column"
                                 style={{ marginRight: 0, marginLeft: "auto" }}
-                                spacing={3}
                             >
                                 <select
                                     name="add-node"
@@ -107,55 +106,77 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
                                     ADD A CONNECTED NODE
                                 </Button>
                             </Stack>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                onClick={() => {
+                                    props.setNodeData((oldNodeData) => {
+                                        let newNodeData = { ...oldNodeData };
+                                        delete newNodeData[node.label];
+                                        return newNodeData;
+                                    });
+                                    props.setAdjList((adj) => {
+                                        let newAdj = { ...adj };
+                                        delete newAdj[node.label];
+                                        return newAdj;
+                                    });
+                                }}
+                            >
+                                DELETE
+                            </Button>
                         </Stack>
                     );
                 })}
             </Stack>
-            <TextField
-                label="Add A Node"
-                variant="filled"
-                color="warning"
-                error={duplicatedName || lengthyName}
-                helperText={
-                    duplicatedName
-                        ? "Node name already exists"
-                        : lengthyName
-                        ? "Node name too long"
-                        : null
-                }
-                fullWidth
-                value={newNodeLabel}
-                style={{ marginTop: "1vw" }}
-                onKeyPress={async (event) => {
-                    if (
-                        event.key === "Enter" &&
-                        newNodeLabel !== "" &&
-                        !Object.keys(props.adjList).includes(newNodeLabel)
-                    ) {
-                        // add a new node
-                        props.setNodeData((nodeData) => [
-                            ...nodeData,
-                            {
-                                label: newNodeLabel,
-                                pos: new Pair(
-                                    Math.random() * window.innerWidth,
-                                    Math.random() * window.innerHeight
-                                ),
-                                velocity: new Pair(0, 0),
-                                acceleration: new Pair(0, 0),
-                            } as NodeData,
-                        ]);
-                        props.setAdjList((adj) => {
-                            adj[newNodeLabel] = [];
-                            return adj;
-                        });
-                        setNewNodeLabel("");
+            <Stack direction="row">
+                <h4>Add a Node:</h4>
+                <TextField
+                    label="Node Name:"
+                    variant="outlined"
+                    color="warning"
+                    error={duplicatedName || lengthyName}
+                    helperText={
+                        duplicatedName
+                            ? "Node name already exists"
+                            : lengthyName
+                            ? "Node name too long"
+                            : null
                     }
-                }}
-                onChange={(event) => {
-                    setNewNodeLabel(event.target.value);
-                }}
-            />
+                    fullWidth
+                    value={newNodeLabel}
+                    style={{ marginTop: "1vw" }}
+                    onKeyPress={async (event) => {
+                        if (
+                            event.key === "Enter" &&
+                            newNodeLabel !== "" &&
+                            !Object.keys(props.adjList).includes(newNodeLabel)
+                        ) {
+                            // add a new node
+                            props.setNodeData((oldNodeData) => {
+                                let newNodeData = oldNodeData;
+                                newNodeData[newNodeLabel] = {
+                                    label: newNodeLabel,
+                                    pos: new Pair(
+                                        Math.random() * window.innerWidth,
+                                        Math.random() * window.innerHeight
+                                    ),
+                                    velocity: new Pair(0, 0),
+                                    acceleration: new Pair(0, 0),
+                                } as Node;
+                                return newNodeData;
+                            });
+                            props.setAdjList((adj) => {
+                                adj[newNodeLabel] = [];
+                                return adj;
+                            });
+                            setNewNodeLabel("");
+                        }
+                    }}
+                    onChange={(event) => {
+                        setNewNodeLabel(event.target.value);
+                    }}
+                />
+            </Stack>
         </GraphInputWrapper>
     );
 }

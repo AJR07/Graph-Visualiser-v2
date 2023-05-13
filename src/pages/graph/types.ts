@@ -2,6 +2,10 @@ import Color from "../../utils/color";
 import Pair from "../../utils/pair";
 
 export interface NodeData {
+    [node: string]: Node;
+}
+
+export interface Node {
     label: string;
     pos: Pair<number, number>;
     velocity: Pair<number, number>;

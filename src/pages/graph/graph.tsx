@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AdjList, GlobalSettings, NodeData } from "./types";
+import { AdjList, GlobalSettings, Node, NodeData } from "./types";
 import Pair from "../../utils/pair";
 import Display from "./display";
 import { Stack } from "@mui/material";
@@ -22,7 +22,7 @@ export default function Graph() {
 
     // graph data states
     const [adjList, setAdjList] = useState<AdjList>({});
-    const [nodeData, setNodeData] = useState<NodeData[]>([]);
+    const [nodeData, setNodeData] = useState<NodeData>({});
 
     useEffect(() => {
         if (data) {
@@ -30,9 +30,9 @@ export default function Graph() {
                 const parsedData = JSON.parse(atob(data));
                 setAdjList(parsedData as AdjList);
                 for (let node of Object.keys(parsedData)) {
-                    setNodeData((nodeData) => [
-                        ...nodeData,
-                        {
+                    setNodeData((prevNodeData) => {
+                        const newNodeData = prevNodeData;
+                        newNodeData[node] = {
                             label: node,
                             pos: new Pair(
                                 Math.random() * window.innerWidth,
@@ -40,8 +40,9 @@ export default function Graph() {
                             ),
                             velocity: new Pair(0, 0),
                             acceleration: new Pair(0, 0),
-                        } as NodeData,
-                    ]);
+                        } as Node;
+                        return newNodeData;
+                    });
                 }
             } catch {
                 setAdjList({});
