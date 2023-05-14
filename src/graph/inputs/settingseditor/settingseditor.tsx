@@ -4,18 +4,43 @@ import { GlobalSettings } from "../../types";
 import Color from "../../../utils/color";
 import { GraphInputWrapper, GraphInput } from "../input";
 
+/**
+ * Input props for the GraphInputSettingsPanel component
+ *
+ * @interface GraphInputSettingsPanelProps
+ * @typedef {GraphInputSettingsPanelProps}
+ */
 interface GraphInputSettingsPanelProps {
+    /**
+     * Settings for the graph inputs
+     *
+     * @type {GlobalSettings}
+     */
     settings: GlobalSettings;
+    /**
+     * Function to set the settings for the graph inputs
+     *
+     * @type {React.Dispatch<React.SetStateAction<GlobalSettings>>}
+     */
     setSettings: React.Dispatch<React.SetStateAction<GlobalSettings>>;
 }
 
+/**
+ * Graph Input Settings Panel component - To control all the general settings for the graph
+ *
+ * @export
+ * @param {GraphInputSettingsPanelProps} props
+ * @returns {*}
+ */
 export default function GraphInputSettingsPanel(
     props: GraphInputSettingsPanelProps
 ) {
     const { settings, setSettings } = props;
 
     return (
+        // use the graph input wrapper
         <GraphInputWrapper label="Controls">
+            {/* For each input, use the various MUI components to build controls for the user */}
             <GraphInput label="Bidirectional">
                 <ToggleButton
                     value="check"

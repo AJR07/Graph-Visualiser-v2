@@ -12,7 +12,7 @@ import { GraphInputWrapper } from "../input";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import Pair from "../../../utils/pair";
 import { useState } from "react";
-import AdjacentNodes from "../../display/adjacentnode";
+import AdjacentNodes from "./adjacentnode";
 
 import "./nodeeditor.css";
 

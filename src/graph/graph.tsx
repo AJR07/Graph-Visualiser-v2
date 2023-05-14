@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AdjList, GlobalSettings, NodeData } from "./types";
-import Display from "./display/display";
+import Display from "./display";
 import { Stack } from "@mui/material";
 import GraphInputSettingsPanel from "./inputs/settingseditor/settingseditor";
 import NodeEditorSettingsPanel from "./inputs/nodeeditor/nodeeditor";
@@ -8,8 +8,14 @@ import PortInputSettingsPanel from "./inputs/porteditor/porteditor";
 import { GraphInputWrapper } from "./inputs/input";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 
+/**
+ * The main component of the app.
+ *
+ * @export
+ * @returns {*}
+ */
 export default function Graph() {
-    // utility states
+    // utility states - settings
     const [settings, setSettings] = useState<GlobalSettings>({
         bidirectional: false,
         nodeRadius: 20,
@@ -18,11 +24,12 @@ export default function Graph() {
         edgeThickness: "weight",
         edgeLength: "weight",
     });
-    const [saveCanvas, setSaveCanvas] = useState<boolean>(false);
 
-    // graph data states
+    // graph data states - store the info about the graph
     const [adjList, setAdjList] = useState<AdjList>({});
     const [nodeData, setNodeData] = useState<NodeData>({});
+
+    // fetch the readme from github
     const [githubMarkdown, setGithubMarkdown] = useState<string>("");
     useEffect(() => {
         fetch(
@@ -31,6 +38,7 @@ export default function Graph() {
                 method: "GET",
             }
         )
+            // convert the response to text, and set the state
             .then((res) => res.text())
             .then((text) => setGithubMarkdown(text));
     }, []);
@@ -45,9 +53,11 @@ export default function Graph() {
             </h4>
 
             <Stack id="input" spacing={3}>
+                {/* Use React Markdown to render the README */}
                 <GraphInputWrapper label="About">
                     <ReactMarkdown>{githubMarkdown}</ReactMarkdown>
                 </GraphInputWrapper>
+                {/* Rendering the input controls */}
                 <h2 style={{ paddingLeft: "1vw", margin: 0, marginTop: "1vw" }}>
                     Input Controls
                 </h2>
@@ -63,19 +73,17 @@ export default function Graph() {
                     bidirectional={settings.bidirectional}
                 />
                 <PortInputSettingsPanel
-                    nodeData={nodeData}
                     setNodeData={setNodeData}
                     adjList={adjList}
                     setAdjList={setAdjList}
-                    setSaveCanvas={setSaveCanvas}
                 />
             </Stack>
+            {/* Render the graph */}
             <h2 className="center">Rendered Graph</h2>
             <Display
                 nodeData={nodeData}
                 adjList={adjList}
                 settings={settings}
-                saveCanvas={saveCanvas}
             />
         </Stack>
     );

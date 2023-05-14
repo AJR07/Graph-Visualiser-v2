@@ -1,7 +1,7 @@
 import { Button, MenuItem, Select, Stack, TextField } from "@mui/material";
 import { AdjList, NodeData, Node } from "../../types";
 import { GraphInput, GraphInputWrapper } from "../input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Pair from "../../../utils/pair";
 import ImportAdjList from "./import/importadjlist";
 import ImportAdjMatrix from "./import/importadjmatrix";
@@ -10,6 +10,11 @@ import ExportAdjMatrix from "./export/exportadjmatrix";
 import ExportAdjList from "./export/exportadjlist";
 import ExportedEdgeList from "./export/exportededgelist";
 
+/**
+ * Formatting instructions for the user, for each type of import list
+ *
+ * @type {{ adjlist: {}; adjmatrix: {}; edgelist: {}; }}
+ */
 const importFormats = {
     adjlist: [
         "Adjacency List",
@@ -25,32 +30,66 @@ const importFormats = {
     ],
 };
 
+/**
+ * Props for import export panels
+ *
+ * @interface PortInputSettingsPanelProps
+ * @typedef {PortInputSettingsPanelProps}
+ */
 interface PortInputSettingsPanelProps {
-    nodeData: NodeData;
+    /**
+     * Function to set the node data
+     *
+     * @type {React.Dispatch<React.SetStateAction<NodeData>>}
+     */
     setNodeData: React.Dispatch<React.SetStateAction<NodeData>>;
+    /**
+     * Adjacency List for the controls to use
+     *
+     * @type {AdjList}
+     */
     adjList: AdjList;
+    /**
+     * Function to set the adjacency list
+     *
+     * @type {React.Dispatch<React.SetStateAction<AdjList>>}
+     */
     setAdjList: React.Dispatch<React.SetStateAction<AdjList>>;
-    setSaveCanvas: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+/**
+ * Controls for importing and exporting graphs
+ *
+ * @export
+ * @param {PortInputSettingsPanelProps} props
+ * @returns {*}
+ */
 export default function PortInputSettingsPanel(
     props: PortInputSettingsPanelProps
 ) {
-    const { nodeData, setNodeData, adjList, setAdjList, setSaveCanvas } = props;
+    const { setNodeData, adjList, setAdjList } = props;
     const [importExportType, setImportExportType] = useState<
         "adjlist" | "adjmatrix" | "edgelist"
     >("adjlist");
     const [importData, setImportData] = useState<string>("");
     const [exportData, setExportData] = useState<string>("");
 
+    // see export data UI
+    useEffect(() => {
+        // copy to clipboard
+        navigator.clipboard.writeText(exportData);
+    }, [exportData]);
+
     return (
         <GraphInputWrapper label="Import/Export">
+            {/* Render the import/export instructions */}
             <GraphInputWrapper label="Formatting" opacity={1.1}>
                 <h3>Format of: {importFormats[importExportType][0]}</h3>
                 <p style={{ margin: 0, whiteSpace: "pre-line" }}>
                     {importFormats[importExportType][1]}
                 </p>
             </GraphInputWrapper>
+            {/* Render Input/Export Type Selector - Controls the type of graph we are looking at */}
             <GraphInput label="Import/Export Type">
                 <Select
                     value={importExportType}
@@ -78,6 +117,7 @@ export default function PortInputSettingsPanel(
                 </Select>
             </GraphInput>
             <br />
+            {/* Render UI for the user to enter data and import it in. */}
             <GraphInput label="Import" widthPercent={7}>
                 <Stack
                     direction="row"
@@ -100,6 +140,7 @@ export default function PortInputSettingsPanel(
                         variant="contained"
                         color="error"
                         onClick={() => {
+                            // the different states you can import something in. Separate functions for each type.
                             switch (importExportType) {
                                 case "adjlist":
                                     ImportAdjList(
@@ -130,12 +171,14 @@ export default function PortInputSettingsPanel(
                 </Stack>
             </GraphInput>
 
+            {/* Render UI for the user to export the current graph as data */}
             <GraphInput label="Export" widthPercent={7}>
                 <Button
                     variant="contained"
                     fullWidth
-                    onClick={(evt) => {
-                        // copy to user's clipboard
+                    onClick={() => {
+                        // render and export the data based on the type of graph we are looking at
+                        // also copy to clipboard, using the useEffect above
                         switch (importExportType) {
                             case "adjlist":
                                 setExportData(ExportAdjList(adjList));
@@ -152,6 +195,7 @@ export default function PortInputSettingsPanel(
                     EXPORT (Copy To Clipboard)
                 </Button>
             </GraphInput>
+            {/* Display the exported data so the user can also see it. */}
             <h3>Exported Data:</h3>
             <p
                 style={{

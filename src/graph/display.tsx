@@ -1,40 +1,141 @@
 import { Component, RefObject, createRef } from "react";
-import { AdjList, GlobalSettings, NodeData } from "../types";
+import { AdjList, GlobalSettings, NodeData } from "./types";
 import p5 from "p5";
-import Pair, { add, mult, restrict } from "../../utils/pair";
-import contrast from "../../utils/contrast";
+import Pair, { add, mult, restrict } from "../utils/pair";
+import contrast from "../utils/contrast";
 import { Button, Stack } from "@mui/material";
 
+/**
+ * Constant for the strength of the force pulling things to the center
+ *
+ * @type {number}
+ */
 const CENTER_FORCE_SCALE = 0.00001;
+/**
+ * Constant for the strength of the force pushing things away from each other
+ *
+ * @type {number}
+ */
 const REPULSION_FORCE_SCALE = 0.001;
+/**
+ * Constant for the strength of the force pulling things towards each other, if they are connected via an edge
+ *
+ * @type {number}
+ */
 const EDGE_FORCE_SCALE = 0.0001;
+/**
+ * Constant for how thick the edges should be when rendered
+ *
+ * @type {number}
+ */
 const THICKNESS_SCALE = 1;
+/**
+ * Constant for the maximum velocity of a node
+ *
+ * @type {number}
+ */
 const MAX_VELOCITY = 1.5;
+/**
+ * Constant for the damping factor of the velocity
+ *
+ * @type {number}
+ */
+const DAMPING = 0.99;
 
+/**
+ * Props for the p5 display component
+ *
+ * @interface DisplayProps
+ * @typedef {DisplayProps}
+ */
 interface DisplayProps {
+    /**
+     * nodeData to be display
+     *
+     * @type {NodeData}
+     */
     nodeData: NodeData;
+    /**
+     * Adjacency list to be display
+     *
+     * @type {AdjList}
+     */
     adjList: AdjList;
+    /**
+     * Global settings to be used when displaying
+     *
+     * @type {GlobalSettings}
+     */
     settings: GlobalSettings;
-    saveCanvas: boolean;
 }
 
+/**
+ * Class Component to display the graph, integrated with p5
+ *
+ * @export
+ * @class Display
+ * @typedef {Display}
+ * @extends {Component<DisplayProps>}
+ */
 export default class Display extends Component<DisplayProps> {
+    /**
+     * reference to link p5 to the div to add the canvas
+     *
+     * @type {RefObject<HTMLDivElement>}
+     */
     ref: RefObject<HTMLDivElement>;
+    /**
+     * var that stores our instance of p5
+     *
+     * @type {(any | null)}
+     */
     p5: any | null = null;
+    /**
+     * props passed into the component
+     *
+     * @type {DisplayProps}
+     */
     props: DisplayProps;
-    startTime: number = Date.now();
-    selectedNode: string | null = null;
-    DAMPING: number = 0.99;
 
+    // !utility variables
+    /**
+     * start time when the component was rendered, for framerate
+     *
+     * @type {number}
+     */
+    startTime: number = Date.now();
+    /**
+     * node that is selected by the mouse
+     *
+     * @type {(string | null)}
+     */
+    selectedNode: string | null = null;
+    /**
+     *
+     *
+     * @type {number}
+     */
+
+    /**
+     * Creates an instance of Display.
+     *
+     * @constructor
+     * @param {DisplayProps} props
+     */
     constructor(props: DisplayProps) {
+        // add props to the class
         super(props);
         this.props = props;
+
+        // bind functions so they can use 'this'
         this.sketch = this.sketch.bind(this);
         this.updateNodes = this.updateNodes.bind(this);
         this.applyForce = this.applyForce.bind(this);
 
+        // create ref
         this.ref = createRef<HTMLDivElement>();
 
+        // update canvas upon window resize
         window.onresize = () => {
             if (this.p5) {
                 this.p5.resizeCanvas(window.innerWidth, window.innerHeight);
@@ -42,37 +143,65 @@ export default class Display extends Component<DisplayProps> {
         };
     }
 
+    /**
+     * function to be run every frame to update every node!
+     */
     updateNodes() {
         for (let node of Object.values(this.props.nodeData)) {
+            // add acceleration to velocity
             node.velocity = add(node.velocity, node.acceleration);
-            node.velocity = mult(node.velocity, this.DAMPING);
+            // add dapming factor
+            node.velocity = mult(node.velocity, DAMPING);
+
+            // clamp velocity
             node.velocity = restrict(node.velocity, MAX_VELOCITY);
+
+            // calculate position, restrict to within canvas
             node.pos = add(node.pos, node.velocity);
             node.pos = new Pair(
                 Math.min(Math.max(node.pos.first, 0), window.innerWidth),
                 Math.min(Math.max(node.pos.second, 0), window.innerHeight)
             );
+
+            // reset acceleration
             node.acceleration = new Pair(0, 0);
         }
     }
 
+    /**
+     * Function to apply a force to a node
+     * The source param is for debugging.
+     *
+     * @param {string} nodeID
+     * @param {Pair<number, number>} force
+     * @param {string} [source=""]
+     */
     applyForce(
         nodeID: string,
         force: Pair<number, number>,
         source: string = ""
     ) {
+        // add the force to the acceleration
         this.props.nodeData[nodeID].acceleration = add(
             this.props.nodeData[nodeID].acceleration,
             force
         );
     }
 
+    /**
+     * Draw the graph using p5!!!
+     *
+     * @param {*} p5
+     */
     sketch(p5: any) {
+        // set up the canvas
         p5.setup = () => {
             p5.createCanvas(window.innerWidth, window.innerHeight);
+            // store the start time
             this.startTime = Date.now();
         };
 
+        // draw the graph - ran every frame
         p5.draw = () => {
             let mouseOverNode = false;
             p5.background(50);
@@ -93,24 +222,31 @@ export default class Display extends Component<DisplayProps> {
 
             // draw edges
             for (let node of Object.values(this.props.nodeData)) {
+                // check neighbour for each edge
                 for (let neighbour of this.props.adjList[node.label]) {
+                    // get the neighbour node
                     let neighbourNode = this.props.nodeData[neighbour.first];
+                    // if it exists
                     if (neighbourNode) {
+                        // calculate thickness
                         let thickness = this.props.settings.edgeThickness;
                         if (thickness === "weight")
                             thickness = neighbour.second;
                         thickness = Math.sqrt(thickness * THICKNESS_SCALE);
 
-                        let clr = this.props.settings.edgeColor;
-
                         p5.push();
+                        let clr = this.props.settings.edgeColor;
                         p5.stroke(clr);
+
+                        // if thickness is 0, don't draw the stroke
                         if (thickness === 0) p5.noStroke();
                         else p5.strokeWeight(thickness / 2);
 
+                        // if there is a self loop, aka node go to itself
                         if (neighbourNode.label == node.label) {
                             // loop from node to itself
                             p5.noFill();
+                            // use a circle to draw a loop
                             p5.circle(
                                 node.pos.first +
                                     this.props.settings.nodeRadius / 2.5 +
@@ -121,6 +257,7 @@ export default class Display extends Component<DisplayProps> {
                                 this.props.settings.nodeRadius
                             );
                         } else {
+                            // draw a line from node to neighbour
                             p5.line(
                                 node.pos.first,
                                 node.pos.second,
@@ -130,8 +267,10 @@ export default class Display extends Component<DisplayProps> {
                         }
                         p5.pop();
 
+                        // if its a directed graph, draw an arrow
                         if (!this.props.settings.bidirectional) {
                             p5.push();
+                            // by calculating midpoint and angle
                             let midpoint = new Pair(
                                     (node.pos.first + neighbourNode.pos.first) /
                                         2,
@@ -146,6 +285,8 @@ export default class Display extends Component<DisplayProps> {
                                         neighbourNode.pos.first - node.pos.first
                                     ) +
                                     p5.PI / 2;
+
+                            // draw the arrow
                             p5.noStroke();
                             p5.translate(midpoint.first, midpoint.second);
                             p5.rotate(angle);
@@ -176,8 +317,6 @@ export default class Display extends Component<DisplayProps> {
                 ) {
                     mouseOverNode = true;
                 }
-                if (this.selectedNode === node.label)
-                    node.pos = new Pair(p5.mouseX, p5.mouseY);
 
                 // !APPLY FORCES
                 // apply forces - near edge
@@ -194,6 +333,7 @@ export default class Display extends Component<DisplayProps> {
 
                 // apply forces - repel
                 for (let otherNode of Object.values(this.props.nodeData)) {
+                    // check for nodes that are too close
                     if (
                         otherNode.label !== node.label &&
                         p5.dist(
@@ -204,6 +344,7 @@ export default class Display extends Component<DisplayProps> {
                         ) <
                             this.props.settings.nodeRadius * 3
                     ) {
+                        // if there is, apply a repulsion force
                         this.applyForce(
                             node.label,
                             new Pair(
@@ -225,8 +366,11 @@ export default class Display extends Component<DisplayProps> {
 
                 // apply forces - edge
                 for (let neighbour of this.props.adjList[node.label]) {
+                    // go through all neighbours of current node
                     let neighbourNode = this.props.nodeData[neighbour.first]!;
                     if (neighbourNode.label === node.label) continue;
+
+                    // calculate the force
                     let dist = p5.dist(
                         node.pos.first,
                         node.pos.second,
@@ -238,11 +382,13 @@ export default class Display extends Component<DisplayProps> {
                         (this.props.settings.edgeLength === "weight"
                             ? neighbour.second
                             : this.props.settings.edgeLength);
+                    // and the angle
                     let angle = p5.atan2(
                         neighbourNode.pos.second - node.pos.second,
                         neighbourNode.pos.first - node.pos.first
                     );
 
+                    // apply the force correctly using trigo!
                     this.applyForce(
                         node.label,
                         new Pair(
@@ -253,6 +399,11 @@ export default class Display extends Component<DisplayProps> {
                     );
                 }
 
+                // if the node is selected, set it to the same position as mouse
+                if (this.selectedNode === node.label)
+                    node.pos = new Pair(p5.mouseX, p5.mouseY);
+
+                // !DRAW THE NODES!
                 let radius = this.props.settings.nodeRadius;
                 let clr = this.props.settings.nodeColor;
                 p5.push();
@@ -261,6 +412,7 @@ export default class Display extends Component<DisplayProps> {
                 p5.circle(node.pos.first, node.pos.second, radius * 2);
                 p5.pop();
 
+                // draw the labels for each node
                 p5.push();
                 p5.textSize((radius / node.label.length) * 1.5);
                 p5.textAlign(p5.CENTER, p5.CENTER);
@@ -270,10 +422,12 @@ export default class Display extends Component<DisplayProps> {
 
                 this.updateNodes();
             }
+            // if mouse is over node, change cursor
             if (mouseOverNode) document.body.style.cursor = "pointer";
             else document.body.style.cursor = "default";
         };
 
+        // if mouse is pressed, check which node is selected by the mouse
         p5.mousePressed = () => {
             for (let node of Object.values(this.props.nodeData)) {
                 if (
@@ -289,18 +443,28 @@ export default class Display extends Component<DisplayProps> {
             }
         };
 
+        // when mouse is released, set selected node to null
         p5.mouseReleased = () => {
             this.selectedNode = null;
         };
     }
 
+    /**
+     * When component has mounted, render p5
+     */
     componentDidMount() {
         this.p5 = new p5(this.sketch, this.ref.current!);
     }
 
+    /**
+     * Render an empty div for the p5 canvas
+     *
+     * @returns {*}
+     */
     render() {
         return (
             <Stack>
+                {/* Button to save the canvas as an image */}
                 <Button
                     variant="contained"
                     color="success"
