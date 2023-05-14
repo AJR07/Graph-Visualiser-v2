@@ -3,9 +3,12 @@ import { AdjList, NodeData, Node } from "../../types";
 import { GraphInput, GraphInputWrapper } from "../input";
 import { useState } from "react";
 import Pair from "../../../../utils/pair";
-import ImportAdjMatrix from "./importadjmatrix";
-import ImportAdjList from "./importadjlist";
-import ImportEdgeList from "./importedgelist";
+import ImportAdjList from "./import/importadjlist";
+import ImportAdjMatrix from "./import/importadjmatrix";
+import ImportEdgeList from "./import/importedgelist";
+import ExportAdjMatrix from "./export/exportadjmatrix";
+import ExportAdjList from "./export/exportadjlist";
+import ExportedEdgeList from "./export/exportededgelist";
 
 const importFormats = {
     adjlist: [
@@ -34,7 +37,7 @@ export default function PortInputSettingsPanel(
     props: PortInputSettingsPanelProps
 ) {
     const { nodeData, setNodeData, adjList, setAdjList, setSaveCanvas } = props;
-    const [importType, setImportType] = useState<
+    const [importExportType, setImportExportType] = useState<
         "adjlist" | "adjmatrix" | "edgelist"
     >("adjlist");
     const [importData, setImportData] = useState<string>("");
@@ -43,17 +46,17 @@ export default function PortInputSettingsPanel(
     return (
         <GraphInputWrapper label="Import/Export">
             <GraphInputWrapper label="Formatting" opacity={1.1}>
-                <h3>Format of: {importFormats[importType][0]}</h3>
+                <h3>Format of: {importFormats[importExportType][0]}</h3>
                 <p style={{ margin: 0, whiteSpace: "pre-line" }}>
-                    {importFormats[importType][1]}
+                    {importFormats[importExportType][1]}
                 </p>
             </GraphInputWrapper>
             <GraphInput label="Import/Export Type">
                 <Select
-                    value={importType}
+                    value={importExportType}
                     fullWidth
                     onChange={(evt) => {
-                        setImportType(
+                        setImportExportType(
                             evt.target.value as
                                 | "adjlist"
                                 | "adjmatrix"
@@ -97,7 +100,7 @@ export default function PortInputSettingsPanel(
                         variant="contained"
                         color="error"
                         onClick={() => {
-                            switch (importType) {
+                            switch (importExportType) {
                                 case "adjlist":
                                     ImportAdjList(
                                         importData,
@@ -133,12 +136,33 @@ export default function PortInputSettingsPanel(
                     fullWidth
                     onClick={(evt) => {
                         // copy to user's clipboard
-                        navigator.clipboard.writeText(exportData);
+                        switch (importExportType) {
+                            case "adjlist":
+                                setExportData(ExportAdjList(adjList));
+                                break;
+                            case "adjmatrix":
+                                setExportData(ExportAdjMatrix(adjList));
+                                break;
+                            case "edgelist":
+                                setExportData(ExportedEdgeList(adjList));
+                                break;
+                        }
                     }}
                 >
-                    COPY TO CLIPBOARD
+                    EXPORT (Copy To Clipboard)
                 </Button>
             </GraphInput>
+            <h3>Exported Data:</h3>
+            <p
+                style={{
+                    whiteSpace: "pre-line",
+                    fontFamily: "monospace",
+                    padding: "1vw",
+                    backgroundColor: "rgba(240, 240, 240, 0.2)",
+                }}
+            >
+                {exportData}
+            </p>
         </GraphInputWrapper>
     );
 }

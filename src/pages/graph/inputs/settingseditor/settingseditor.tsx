@@ -56,8 +56,6 @@ export default function GraphInputSettingsPanel(
                     marks
                     min={5}
                     max={100}
-                    getAriaValueText={() => `${settings.nodeRadius}`}
-                    valueLabelDisplay="auto"
                     value={settings.nodeRadius}
                     onChange={(e, newVal) => {
                         setSettings((st) => {
@@ -115,8 +113,6 @@ export default function GraphInputSettingsPanel(
                     marks
                     min={6}
                     max={60}
-                    getAriaValueText={() => `${settings.edgeThickness}`}
-                    valueLabelDisplay="auto"
                     value={
                         typeof settings.edgeThickness === "number"
                             ? settings.edgeThickness
@@ -164,8 +160,6 @@ export default function GraphInputSettingsPanel(
                     marks
                     min={20}
                     max={300}
-                    getAriaValueText={() => `${settings.edgeLength}`}
-                    valueLabelDisplay="auto"
                     value={
                         typeof settings.edgeLength === "number"
                             ? settings.edgeLength

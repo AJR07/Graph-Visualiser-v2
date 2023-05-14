@@ -1,5 +1,5 @@
-import Pair from "../../../../utils/pair";
-import { AdjList, Node, NodeData } from "../../types";
+import Pair from "../../../../../utils/pair";
+import { AdjList, Node, NodeData } from "../../../types";
 
 export default function ImportAdjList(
     importData: string,

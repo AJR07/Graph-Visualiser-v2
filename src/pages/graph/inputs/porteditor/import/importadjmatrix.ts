@@ -1,5 +1,5 @@
-import Pair from "../../../../utils/pair";
-import { AdjList, Node, NodeData } from "../../types";
+import Pair from "../../../../../utils/pair";
+import { AdjList, Node, NodeData } from "../../../types";
 
 export default function ImportAdjMatrix(
     importData: string,
@@ -12,15 +12,16 @@ export default function ImportAdjMatrix(
         const lines = importData.split("\n");
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            const numbers = line.split(" ");
-            if (numbers.length !== lines.length) throw new Error();
+            const numbers = line.split(" ").filter((x) => x !== "");
+            if (numbers.length !== lines.length)
+                throw new Error("non-square-matrix");
 
             const nodeLabel = `${i + 1}`;
             if (!adjList[nodeLabel]) adjList[nodeLabel] = [];
             for (let j = 0; j < lines.length; j++) {
                 if (numbers[j] !== "0") {
                     let weight = parseInt(numbers[j]);
-                    if (isNaN(weight)) throw new Error();
+                    if (isNaN(weight)) throw new Error("non-integer-weight");
                     adjList[nodeLabel].push(new Pair(`${j + 1}`, weight));
                     if (!adjList[`${j + 1}`]) adjList[`${j + 1}`] = [];
                     if (!nodeData[`${j + 1}`]) {
