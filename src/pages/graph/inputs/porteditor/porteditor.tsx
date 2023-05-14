@@ -1,14 +1,11 @@
-import {
-    Button,
-    MenuItem,
-    Select,
-    Stack,
-    TextField,
-    createTheme,
-} from "@mui/material";
-import { AdjList, NodeData } from "../types";
-import { GraphInput, GraphInputWrapper } from "./input";
+import { Button, MenuItem, Select, Stack, TextField } from "@mui/material";
+import { AdjList, NodeData, Node } from "../../types";
+import { GraphInput, GraphInputWrapper } from "../input";
 import { useState } from "react";
+import Pair from "../../../../utils/pair";
+import ImportAdjMatrix from "./importadjmatrix";
+import ImportAdjList from "./importadjlist";
+import ImportEdgeList from "./importedgelist";
 
 const importFormats = {
     adjlist: [
@@ -46,44 +43,38 @@ export default function PortInputSettingsPanel(
     return (
         <GraphInputWrapper label="Import/Export">
             <GraphInputWrapper label="Formatting" opacity={1.1}>
-                <Stack
-                    style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
-                    <p style={{ fontWeight: "bold" }}>Import/Export Type</p>
-                    <Select
-                        value={importType}
-                        fullWidth
-                        onChange={(evt) => {
-                            setImportType(
-                                evt.target.value as
-                                    | "adjlist"
-                                    | "adjmatrix"
-                                    | "edgelist"
-                            );
-                        }}
-                        color="warning"
-                        style={{ color: "white" }}
-                    >
-                        <MenuItem style={{ color: "black" }} value="adjlist">
-                            Adjacency List
-                        </MenuItem>
-                        <MenuItem style={{ color: "black" }} value="adjmatrix">
-                            Adjacency Matrix
-                        </MenuItem>
-                        <MenuItem style={{ color: "black" }} value="edgelist">
-                            Edge List
-                        </MenuItem>
-                    </Select>
-                </Stack>
                 <h3>Format of: {importFormats[importType][0]}</h3>
                 <p style={{ margin: 0, whiteSpace: "pre-line" }}>
                     {importFormats[importType][1]}
                 </p>
             </GraphInputWrapper>
+            <GraphInput label="Import/Export Type">
+                <Select
+                    value={importType}
+                    fullWidth
+                    onChange={(evt) => {
+                        setImportType(
+                            evt.target.value as
+                                | "adjlist"
+                                | "adjmatrix"
+                                | "edgelist"
+                        );
+                    }}
+                    color="warning"
+                    style={{ color: "white" }}
+                >
+                    <MenuItem style={{ color: "black" }} value="adjlist">
+                        Adjacency List
+                    </MenuItem>
+                    <MenuItem style={{ color: "black" }} value="adjmatrix">
+                        Adjacency Matrix
+                    </MenuItem>
+                    <MenuItem style={{ color: "black" }} value="edgelist">
+                        Edge List
+                    </MenuItem>
+                </Select>
+            </GraphInput>
+            <br />
             <GraphInput label="Import" widthPercent={7}>
                 <Stack
                     direction="row"
@@ -106,7 +97,29 @@ export default function PortInputSettingsPanel(
                         variant="contained"
                         color="error"
                         onClick={() => {
-                            // TODO: import data
+                            switch (importType) {
+                                case "adjlist":
+                                    ImportAdjList(
+                                        importData,
+                                        setAdjList,
+                                        setNodeData
+                                    );
+                                    break;
+                                case "adjmatrix":
+                                    ImportAdjMatrix(
+                                        importData,
+                                        setAdjList,
+                                        setNodeData
+                                    );
+                                    break;
+                                case "edgelist":
+                                    ImportEdgeList(
+                                        importData,
+                                        setAdjList,
+                                        setNodeData
+                                    );
+                                    break;
+                            }
                         }}
                     >
                         IMPORT

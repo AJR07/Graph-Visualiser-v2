@@ -29,3 +29,13 @@ export function mult(
 ): Pair<number, number> {
     return new Pair(first.first * second, first.second * second);
 }
+
+export function restrict(
+    first: Pair<number, number>,
+    second: number
+): Pair<number, number> {
+    return new Pair(
+        Math.min(first.first, second),
+        Math.min(first.second, second)
+    );
+}

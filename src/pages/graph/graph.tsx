@@ -4,9 +4,9 @@ import { AdjList, GlobalSettings, Node, NodeData } from "./types";
 import Pair from "../../utils/pair";
 import Display from "./display/display";
 import { Stack } from "@mui/material";
-import GraphInputSettingsPanel from "./inputs/settingseditor";
+import GraphInputSettingsPanel from "./inputs/settingseditor/settingseditor";
 import NodeEditorSettingsPanel from "./inputs/nodeeditor/nodeeditor";
-import PortInputSettingsPanel from "./inputs/porteditor";
+import PortInputSettingsPanel from "./inputs/porteditor/porteditor";
 
 export default function Graph() {
     // utility states

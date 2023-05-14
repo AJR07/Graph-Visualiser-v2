@@ -1,7 +1,7 @@
 import { Component, RefObject, createRef } from "react";
 import { AdjList, GlobalSettings, NodeData } from "../types";
 import p5 from "p5";
-import Pair, { add, mult } from "../../../utils/pair";
+import Pair, { add, mult, restrict } from "../../../utils/pair";
 import contrast from "../../../utils/contrast";
 import { Button, Stack } from "@mui/material";
 
@@ -9,7 +9,7 @@ const CENTER_FORCE_SCALE = 0.00001;
 const REPULSION_FORCE_SCALE = 0.001;
 const EDGE_FORCE_SCALE = 0.0001;
 const THICKNESS_SCALE = 1;
-const MAX_FORCE = 2;
+const MAX_VELOCITY = 1.5;
 
 interface DisplayProps {
     nodeData: NodeData;
@@ -24,7 +24,7 @@ export default class Display extends Component<DisplayProps> {
     props: DisplayProps;
     startTime: number = Date.now();
     selectedNode: string | null = null;
-    DAMPING: number = 0.999;
+    DAMPING: number = 0.99;
 
     constructor(props: DisplayProps) {
         super(props);
@@ -46,7 +46,12 @@ export default class Display extends Component<DisplayProps> {
         for (let node of Object.values(this.props.nodeData)) {
             node.velocity = add(node.velocity, node.acceleration);
             node.velocity = mult(node.velocity, this.DAMPING);
+            node.velocity = restrict(node.velocity, MAX_VELOCITY);
             node.pos = add(node.pos, node.velocity);
+            node.pos = new Pair(
+                Math.min(Math.max(node.pos.first, 0), window.innerWidth),
+                Math.min(Math.max(node.pos.second, 0), window.innerHeight)
+            );
             node.acceleration = new Pair(0, 0);
         }
     }
@@ -58,10 +63,7 @@ export default class Display extends Component<DisplayProps> {
     ) {
         this.props.nodeData[nodeID].acceleration = add(
             this.props.nodeData[nodeID].acceleration,
-            new Pair(
-                Math.min(force.first, MAX_FORCE),
-                Math.min(force.second, MAX_FORCE)
-            )
+            force
         );
     }
 
@@ -185,7 +187,7 @@ export default class Display extends Component<DisplayProps> {
                             otherNode.pos.first,
                             otherNode.pos.second
                         ) <
-                            this.props.settings.nodeRadius * 4
+                            this.props.settings.nodeRadius * 3
                     ) {
                         this.applyForce(
                             node.label,
