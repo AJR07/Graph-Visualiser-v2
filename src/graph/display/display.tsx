@@ -107,12 +107,27 @@ export default class Display extends Component<DisplayProps> {
                         p5.stroke(clr);
                         if (thickness === 0) p5.noStroke();
                         else p5.strokeWeight(thickness / 2);
-                        p5.line(
-                            node.pos.first,
-                            node.pos.second,
-                            neighbourNode.pos.first,
-                            neighbourNode.pos.second
-                        );
+
+                        if (neighbourNode.label == node.label) {
+                            // loop from node to itself
+                            p5.noFill();
+                            p5.circle(
+                                node.pos.first +
+                                    this.props.settings.nodeRadius / 2.5 +
+                                    thickness,
+                                node.pos.second +
+                                    this.props.settings.nodeRadius / 2.5 +
+                                    thickness,
+                                this.props.settings.nodeRadius
+                            );
+                        } else {
+                            p5.line(
+                                node.pos.first,
+                                node.pos.second,
+                                neighbourNode.pos.first,
+                                neighbourNode.pos.second
+                            );
+                        }
                         p5.pop();
 
                         if (!this.props.settings.bidirectional) {
@@ -227,6 +242,7 @@ export default class Display extends Component<DisplayProps> {
                         neighbourNode.pos.second - node.pos.second,
                         neighbourNode.pos.first - node.pos.first
                     );
+
                     this.applyForce(
                         node.label,
                         new Pair(
