@@ -1,7 +1,7 @@
 import { Slider, ToggleButton } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import { GlobalSettings } from "../../types";
-import Color from "../../../../utils/color";
+import Color from "../../../utils/color";
 import { GraphInputWrapper, GraphInput } from "../input";
 
 interface GraphInputSettingsPanelProps {

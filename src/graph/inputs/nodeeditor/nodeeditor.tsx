@@ -10,7 +10,7 @@ import {
 import { AdjList, DEFAULT_NODE_WEIGHT, Node, NodeData } from "../../types";
 import { GraphInputWrapper } from "../input";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
-import Pair from "../../../../utils/pair";
+import Pair from "../../../utils/pair";
 import { useState } from "react";
 import AdjacentNodes from "../../display/adjacentnode";
 

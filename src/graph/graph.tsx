@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AdjList, GlobalSettings, Node, NodeData } from "./types";
-import Pair from "../../utils/pair";
+import Pair from "../utils/pair";
 import Display from "./display/display";
 import { Stack } from "@mui/material";
 import GraphInputSettingsPanel from "./inputs/settingseditor/settingseditor";

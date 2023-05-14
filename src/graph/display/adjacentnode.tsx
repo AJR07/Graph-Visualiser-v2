@@ -1,6 +1,6 @@
 import { Stack } from "@mui/material";
 import { AdjList, Node } from "../types";
-import Pair from "../../../utils/pair";
+import Pair from "../../utils/pair";
 
 interface AdjacentNodesProps {
     node: Node;

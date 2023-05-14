@@ -2,7 +2,7 @@ import { Button, MenuItem, Select, Stack, TextField } from "@mui/material";
 import { AdjList, NodeData, Node } from "../../types";
 import { GraphInput, GraphInputWrapper } from "../input";
 import { useState } from "react";
-import Pair from "../../../../utils/pair";
+import Pair from "../../../utils/pair";
 import ImportAdjList from "./import/importadjlist";
 import ImportAdjMatrix from "./import/importadjmatrix";
 import ImportEdgeList from "./import/importedgelist";

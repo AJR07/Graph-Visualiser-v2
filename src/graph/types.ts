@@ -1,5 +1,5 @@
-import Color from "../../utils/color";
-import Pair from "../../utils/pair";
+import Color from "../utils/color";
+import Pair from "../utils/pair";
 
 export interface NodeData {
     [node: string]: Node;

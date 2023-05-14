@@ -1,8 +1,8 @@
 import { Component, RefObject, createRef } from "react";
 import { AdjList, GlobalSettings, NodeData } from "../types";
 import p5 from "p5";
-import Pair, { add, mult, restrict } from "../../../utils/pair";
-import contrast from "../../../utils/contrast";
+import Pair, { add, mult, restrict } from "../../utils/pair";
+import contrast from "../../utils/contrast";
 import { Button, Stack } from "@mui/material";
 
 const CENTER_FORCE_SCALE = 0.00001;
