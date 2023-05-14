@@ -42,7 +42,7 @@ export function GraphInputWrapper(props: GraphInputWrapperProps) {
         <Stack
             id="control-panel"
             style={{
-                backgroundColor: "#17753c",
+                backgroundColor: "#21603a",
                 padding: "1vw",
                 marginLeft: "1vw",
                 marginRight: "1vw",
