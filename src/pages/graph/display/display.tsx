@@ -3,6 +3,7 @@ import { AdjList, GlobalSettings, NodeData } from "../types";
 import p5 from "p5";
 import Pair, { add, mult } from "../../../utils/pair";
 import contrast from "../../../utils/contrast";
+import { Button, Stack } from "@mui/material";
 
 const CENTER_FORCE_SCALE = 0.00001;
 const REPULSION_FORCE_SCALE = 0.001;
@@ -14,6 +15,7 @@ interface DisplayProps {
     nodeData: NodeData;
     adjList: AdjList;
     settings: GlobalSettings;
+    saveCanvas: boolean;
 }
 
 export default class Display extends Component<DisplayProps> {
@@ -279,6 +281,20 @@ export default class Display extends Component<DisplayProps> {
     }
 
     render() {
-        return <div ref={this.ref} />;
+        return (
+            <Stack>
+                <Button
+                    variant="contained"
+                    color="success"
+                    fullWidth
+                    onClick={() => {
+                        this.p5!.saveCanvas("graph", "png");
+                    }}
+                >
+                    SAVE AS IMAGE
+                </Button>
+                <div ref={this.ref} />
+            </Stack>
+        );
     }
 }

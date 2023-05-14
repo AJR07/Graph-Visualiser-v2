@@ -6,6 +6,7 @@ import Display from "./display/display";
 import { Stack } from "@mui/material";
 import GraphInputSettingsPanel from "./inputs/settingseditor";
 import NodeEditorSettingsPanel from "./inputs/nodeeditor/nodeeditor";
+import PortInputSettingsPanel from "./inputs/porteditor";
 
 export default function Graph() {
     // utility states
@@ -18,6 +19,7 @@ export default function Graph() {
         edgeThickness: "weight",
         edgeLength: "weight",
     });
+    const [saveCanvas, setSaveCanvas] = useState<boolean>(false);
 
     // graph data states
     const [adjList, setAdjList] = useState<AdjList>({});
@@ -73,12 +75,20 @@ export default function Graph() {
                     setAdjList={setAdjList}
                     bidirectional={settings.bidirectional}
                 />
+                <PortInputSettingsPanel
+                    nodeData={nodeData}
+                    setNodeData={setNodeData}
+                    adjList={adjList}
+                    setAdjList={setAdjList}
+                    setSaveCanvas={setSaveCanvas}
+                />
             </Stack>
             <h2 className="center">Rendered Graph</h2>
             <Display
                 nodeData={nodeData}
                 adjList={adjList}
                 settings={settings}
+                saveCanvas={saveCanvas}
             />
         </Stack>
     );
