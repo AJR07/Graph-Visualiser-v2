@@ -54,7 +54,33 @@ export default function AdjacentNodes(props: AdjacentNodesProps) {
                               <h3
                                   className="node node-adjacent center"
                                   key={adjNode.first}
-                                  style={{ margin: 0 }}
+                                  style={{ cursor: "pointer", margin: 0 }}
+                                  onClick={() => {
+                                      // delete the edge
+                                      props.setAdjList((adjList) => {
+                                          let newAdjList = { ...adjList };
+                                          newAdjList[node.label] = newAdjList[
+                                              node.label
+                                          ].filter(
+                                              (pair) =>
+                                                  pair.first !== adjNode.first
+                                          );
+                                          if (
+                                              props.bidirectional &&
+                                              newAdjList[adjNode.first]
+                                          ) {
+                                              newAdjList[adjNode.first] =
+                                                  newAdjList[
+                                                      adjNode.first
+                                                  ].filter(
+                                                      (potentialNode) =>
+                                                          node.label !==
+                                                          potentialNode.first
+                                                  );
+                                          }
+                                          return newAdjList;
+                                      });
+                                  }}
                               >
                                   {adjNode.first}
                               </h3>
@@ -69,13 +95,15 @@ export default function AdjacentNodes(props: AdjacentNodesProps) {
                                           let newAdj = {
                                               ...adj,
                                           };
+                                          let val = parseInt(evt.target.value);
+                                          if (isNaN(val)) val = 0;
+                                          val = Math.abs(val);
+
                                           // update the weight for that edge
                                           newAdj[node.label].find(
                                               (pair) =>
                                                   pair.first === adjNode.first
-                                          )!.second = parseInt(
-                                              evt.target.value
-                                          );
+                                          )!.second = val;
 
                                           // if its bidirectional, update the other edge too
                                           if (props.bidirectional) {
@@ -92,17 +120,10 @@ export default function AdjacentNodes(props: AdjacentNodesProps) {
                                                       (pair) =>
                                                           pair.first ===
                                                           node.label
-                                                  )!.second = parseInt(
-                                                      evt.target.value
-                                                  );
+                                                  )!.second = val;
                                               } else {
                                                   newAdj[adjNode.first].push(
-                                                      new Pair(
-                                                          node.label,
-                                                          parseInt(
-                                                              evt.target.value
-                                                          )
-                                                      )
+                                                      new Pair(node.label, val)
                                                   );
                                               }
                                           }

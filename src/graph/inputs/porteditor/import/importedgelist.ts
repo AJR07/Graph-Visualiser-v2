@@ -1,5 +1,5 @@
 import Pair from "../../../../utils/pair";
-import { AdjList, Node, NodeData } from "../../../types";
+import { AdjList, DEFAULT_NODE_WEIGHT, Node, NodeData } from "../../../types";
 
 /**
  * Imports an edge list into the graph
@@ -30,7 +30,7 @@ export default function ImportEdgeList(
                 if (!adjList[node1]) adjList[node1] = [];
                 if (!adjList[node2]) adjList[node2] = [];
                 // default weight is 10, add to adjList
-                adjList[node1].push(new Pair(node2, 10));
+                adjList[node1].push(new Pair(node2, DEFAULT_NODE_WEIGHT));
 
                 // if node1 or node2 doesn't exist, create it
                 if (!nodeData[node1]) {

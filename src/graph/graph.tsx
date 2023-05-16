@@ -64,6 +64,7 @@ export default function Graph() {
                 <GraphInputSettingsPanel
                     settings={settings}
                     setSettings={setSettings}
+                    setAdjList={setAdjList}
                 />
                 <NodeEditorSettingsPanel
                     nodeData={nodeData}

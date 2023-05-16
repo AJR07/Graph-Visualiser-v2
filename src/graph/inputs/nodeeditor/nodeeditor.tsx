@@ -30,7 +30,6 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
     const duplicatedName: boolean = Object.keys(props.adjList).includes(
         newNodeLabel
     );
-    const lengthyName: boolean = newNodeLabel.length > 5;
     let count = 1;
 
     return (
@@ -150,13 +149,9 @@ export default function NodeEditorSettingsPanel(props: NodeEditorProps) {
                     label="Node Name:"
                     variant="outlined"
                     color="warning"
-                    error={duplicatedName || lengthyName}
+                    error={duplicatedName}
                     helperText={
-                        duplicatedName
-                            ? "Node name already exists"
-                            : lengthyName
-                            ? "Node name too long"
-                            : null
+                        duplicatedName ? "Node name already exists" : null
                     }
                     fullWidth
                     value={newNodeLabel}

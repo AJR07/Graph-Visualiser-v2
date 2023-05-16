@@ -1,8 +1,9 @@
 import { Slider, ToggleButton } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
-import { GlobalSettings } from "../../types";
+import { AdjList, GlobalSettings, NodeData } from "../../types";
 import Color from "../../../utils/color";
 import { GraphInputWrapper, GraphInput } from "../input";
+import Pair from "../../../utils/pair";
 
 /**
  * Input props for the GraphInputSettingsPanel component
@@ -23,6 +24,12 @@ interface GraphInputSettingsPanelProps {
      * @type {React.Dispatch<React.SetStateAction<GlobalSettings>>}
      */
     setSettings: React.Dispatch<React.SetStateAction<GlobalSettings>>;
+    /**
+     * Function to set the adjacency list for bidirectional
+     *
+     * @type {React.Dispatch<React.SetStateAction<AdjList>>}
+     */
+    setAdjList: React.Dispatch<React.SetStateAction<AdjList>>;
 }
 
 /**
@@ -54,6 +61,43 @@ export default function GraphInputSettingsPanel(
                         setSettings({
                             ...settings,
                             bidirectional: !settings.bidirectional,
+                        });
+                        // for every edge, duplicate it for the other node
+                        props.setAdjList((adjList) => {
+                            let newAdjList = { ...adjList };
+                            // for each node
+                            for (let primaryNode of Object.keys(adjList)) {
+                                // check adjacent nodes
+                                for (let secondaryNode of Object.values(
+                                    adjList[primaryNode]
+                                )) {
+                                    // for each adjacent nodes if they do not have the primary node as the adjacent node,
+                                    let correspondingOpposite = adjList[
+                                        secondaryNode.first
+                                    ].find((value) => {
+                                        return value.first === primaryNode;
+                                    });
+
+                                    // add it!
+                                    if (correspondingOpposite)
+                                        adjList[secondaryNode.first][
+                                            adjList[
+                                                secondaryNode.first
+                                            ].indexOf(correspondingOpposite)
+                                        ] = new Pair(
+                                            primaryNode,
+                                            secondaryNode.second
+                                        );
+                                    else
+                                        adjList[secondaryNode.first].push(
+                                            new Pair(
+                                                primaryNode,
+                                                secondaryNode.second
+                                            )
+                                        );
+                                }
+                            }
+                            return newAdjList;
                         });
                     }}
                 >

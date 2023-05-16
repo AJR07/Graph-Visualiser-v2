@@ -1,5 +1,5 @@
 import Pair from "../../../../utils/pair";
-import { AdjList, Node, NodeData } from "../../../types";
+import { AdjList, DEFAULT_NODE_WEIGHT, Node, NodeData } from "../../../types";
 
 export default function ImportAdjList(
     importData: string,
@@ -18,14 +18,25 @@ export default function ImportAdjList(
             const nodeLabel = words[0];
             if (!adjList[nodeLabel]) adjList[nodeLabel] = [];
 
+            // if node doesn't exist, create it
+            nodeData[nodeLabel] = {
+                label: nodeLabel,
+                pos: new Pair(
+                    Math.random() * window.innerWidth,
+                    Math.random() * window.innerHeight
+                ),
+                velocity: new Pair(0, 0),
+                acceleration: new Pair(0, 0),
+            } as Node;
             // if there is no connected nodes, continue
             if (words.length == 1) continue;
 
             // add connected nodes to adjList
             const connectedNodes = words.slice(1);
             for (let j = 0; j < connectedNodes.length; j++) {
-                // default weight is 10, add to adjList
-                adjList[nodeLabel].push(new Pair(connectedNodes[j], 10));
+                adjList[nodeLabel].push(
+                    new Pair(connectedNodes[j], DEFAULT_NODE_WEIGHT)
+                );
 
                 // if node doesn't exist, create it
                 if (!adjList[connectedNodes[j]])
@@ -42,18 +53,9 @@ export default function ImportAdjList(
                     } as Node;
                 }
             }
-
-            // if node doesn't exist, create it
-            nodeData[nodeLabel] = {
-                label: nodeLabel,
-                pos: new Pair(
-                    Math.random() * window.innerWidth,
-                    Math.random() * window.innerHeight
-                ),
-                velocity: new Pair(0, 0),
-                acceleration: new Pair(0, 0),
-            } as Node;
         }
+        console.log(adjList);
+        console.log(nodeData);
         setAdjList(adjList);
         setNodeData(nodeData);
     } catch (err) {

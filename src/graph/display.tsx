@@ -10,19 +10,19 @@ import { Button, Stack } from "@mui/material";
  *
  * @type {number}
  */
-const CENTER_FORCE_SCALE = 0.00001;
+const CENTER_FORCE_SCALE = 0.0003;
 /**
  * Constant for the strength of the force pushing things away from each other
  *
  * @type {number}
  */
-const REPULSION_FORCE_SCALE = 0.001;
+const REPULSION_FORCE_SCALE = 0.0001;
 /**
  * Constant for the strength of the force pulling things towards each other, if they are connected via an edge
  *
  * @type {number}
  */
-const EDGE_FORCE_SCALE = 0.0001;
+const EDGE_FORCE_SCALE = 0.001;
 /**
  * Constant for how thick the edges should be when rendered
  *
@@ -40,7 +40,7 @@ const MAX_VELOCITY = 1.5;
  *
  * @type {number}
  */
-const DAMPING = 0.99;
+const DAMPING = 0.9;
 
 /**
  * Props for the p5 display component
@@ -110,11 +110,6 @@ export default class Display extends Component<DisplayProps> {
      * @type {(string | null)}
      */
     selectedNode: string | null = null;
-    /**
-     *
-     *
-     * @type {number}
-     */
 
     /**
      * Creates an instance of Display.
@@ -159,12 +154,22 @@ export default class Display extends Component<DisplayProps> {
             // calculate position, restrict to within canvas
             node.pos = add(node.pos, node.velocity);
             node.pos = new Pair(
-                Math.min(Math.max(node.pos.first, 0), window.innerWidth),
-                Math.min(Math.max(node.pos.second, 0), window.innerHeight)
+                Math.min(
+                    Math.max(node.pos.first, this.props.settings.nodeRadius),
+                    window.innerWidth - this.props.settings.nodeRadius
+                ),
+                Math.min(
+                    Math.max(node.pos.second, this.props.settings.nodeRadius),
+                    window.innerHeight - this.props.settings.nodeRadius
+                )
             );
 
             // reset acceleration
             node.acceleration = new Pair(0, 0);
+
+            // if the node is selected, set it to the same position as mouse
+            if (this.selectedNode === node.label)
+                node.pos = new Pair(this.p5.mouseX, this.p5.mouseY);
         }
     }
 
@@ -224,6 +229,7 @@ export default class Display extends Component<DisplayProps> {
             for (let node of Object.values(this.props.nodeData)) {
                 // check neighbour for each edge
                 for (let neighbour of this.props.adjList[node.label]) {
+                    if (!neighbour) continue;
                     // get the neighbour node
                     let neighbourNode = this.props.nodeData[neighbour.first];
                     // if it exists
@@ -319,7 +325,7 @@ export default class Display extends Component<DisplayProps> {
                 }
 
                 // !APPLY FORCES
-                // apply forces - near edge
+                // apply forces - center nodes
                 let distX = p5.width / 2 - node.pos.first;
                 let distY = p5.height / 2 - node.pos.second;
                 this.applyForce(
@@ -333,31 +339,14 @@ export default class Display extends Component<DisplayProps> {
 
                 // apply forces - repel
                 for (let otherNode of Object.values(this.props.nodeData)) {
-                    // check for nodes that are too close
-                    if (
-                        otherNode.label !== node.label &&
-                        p5.dist(
-                            node.pos.first,
-                            node.pos.second,
-                            otherNode.pos.first,
-                            otherNode.pos.second
-                        ) <
-                            this.props.settings.nodeRadius * 3
-                    ) {
-                        // if there is, apply a repulsion force
+                    if (otherNode.label !== node.label) {
                         this.applyForce(
                             node.label,
                             new Pair(
                                 REPULSION_FORCE_SCALE *
-                                    -(
-                                        this.props.settings.nodeRadius -
-                                        (node.pos.first - otherNode.pos.first)
-                                    ),
+                                    (node.pos.first - otherNode.pos.first),
                                 REPULSION_FORCE_SCALE *
-                                    -(
-                                        this.props.settings.nodeRadius -
-                                        (node.pos.second - otherNode.pos.second)
-                                    )
+                                    (node.pos.second - otherNode.pos.second)
                             ),
                             "repel"
                         );
@@ -398,10 +387,6 @@ export default class Display extends Component<DisplayProps> {
                         "edge"
                     );
                 }
-
-                // if the node is selected, set it to the same position as mouse
-                if (this.selectedNode === node.label)
-                    node.pos = new Pair(p5.mouseX, p5.mouseY);
 
                 // !DRAW THE NODES!
                 let radius = this.props.settings.nodeRadius;
