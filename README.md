@@ -4,7 +4,7 @@
 
 For all viewing from the site, and have no idea what this is supposed to help you visualise, please read [beginner's guide](#beginners-introduction-on-graph-theory).
 
-## **Project Discription**
+## **Project Description**
 
 Extension of the graph visualiser me and @wangy412 did a long time ago, this time for CEP. I would like to clarify that Yunze did a lot (i mean most) of the work for that collaboration. This is meant to be a huge extension. Plus, its using a completely different framework and its 3 years apart LOL. If you want to see it, this is the [old one](https://ajr07.github.io/Graph-Visualiser/). Enjoy!
 
