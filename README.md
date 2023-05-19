@@ -10,8 +10,7 @@ Extension of the graph visualiser me and @wangy412 did a long time ago, this tim
 
 ### **Side Note: Where is the simulation/visualisation?**
 
--   Visualisation: Well you can literally visualise any graphical data here, even with complex controls
--   Simulation: There are many controls, some which would affect the physics simulation in the graph below. You could play around with this, from what I've tried with complex loops, trees etc, you can create some very cool simulations.
+Simulation: There are many controls, some which would affect the physics simulation in the graph below. You could play around with this, from what I've tried with complex loops, trees etc, you can create some very cool simulations.
 
 ## **Tech Stack**
 

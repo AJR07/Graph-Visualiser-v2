@@ -6,17 +6,11 @@ import contrast from "../utils/contrast";
 import { Button, Stack } from "@mui/material";
 
 /**
- * Constant for the strength of the force pulling things to the center
- *
- * @type {number}
- */
-const CENTER_FORCE_SCALE = 0.0003;
-/**
  * Constant for the strength of the force pushing things away from each other
  *
  * @type {number}
  */
-const REPULSION_FORCE_SCALE = 0.0001;
+const REPULSION_FORCE_SCALE = 0.9;
 /**
  * Constant for the strength of the force pulling things towards each other, if they are connected via an edge
  *
@@ -34,7 +28,7 @@ const THICKNESS_SCALE = 1;
  *
  * @type {number}
  */
-const MAX_VELOCITY = 1.5;
+const MAX_VELOCITY = 4;
 /**
  * Constant for the damping factor of the velocity
  *
@@ -325,27 +319,16 @@ export default class Display extends Component<DisplayProps> {
                 }
 
                 // !APPLY FORCES
-                // apply forces - center nodes
-                let distX = p5.width / 2 - node.pos.first;
-                let distY = p5.height / 2 - node.pos.second;
-                this.applyForce(
-                    node.label,
-                    new Pair(
-                        distX * CENTER_FORCE_SCALE,
-                        distY * CENTER_FORCE_SCALE
-                    ),
-                    "near edge"
-                );
 
-                // apply forces - repel
+                // apply forces - repel from nodes
                 for (let otherNode of Object.values(this.props.nodeData)) {
                     if (otherNode.label !== node.label) {
                         this.applyForce(
                             node.label,
                             new Pair(
-                                REPULSION_FORCE_SCALE *
+                                (REPULSION_FORCE_SCALE * 1) /
                                     (node.pos.first - otherNode.pos.first),
-                                REPULSION_FORCE_SCALE *
+                                (REPULSION_FORCE_SCALE * 1) /
                                     (node.pos.second - otherNode.pos.second)
                             ),
                             "repel"
